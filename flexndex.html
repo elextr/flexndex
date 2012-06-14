@@ -1,0 +1,1245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.7" />
+<title>Flexndex - a document index generator</title>
+<style type="text/css">
+/* Shared CSS for AsciiDoc xhtml11 and html5 backends */
+
+/* Default font. */
+body {
+  font-family: Georgia,serif;
+}
+
+/* Title font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+#toctitle,
+#author, #revnumber, #revdate, #revremark,
+#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+h5 {
+  font-size: 1.0em;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+.monospaced, code, tt, pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: inherit;
+  color: navy;
+  padding: 0;
+  margin: 0;
+}
+
+
+#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+#email {
+}
+#revnumber, #revdate, #revremark {
+}
+
+#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #888;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  #footer-badges { display: none; }
+}
+
+#toc {
+  margin-bottom: 2.5em;
+}
+
+#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+
+span.underline { text-decoration: underline; }
+span.overline { text-decoration: overline; }
+span.line-through { text-decoration: line-through; }
+
+div.unbreakable { page-break-inside: avoid; }
+
+
+/*
+ * xhtml11 specific
+ *
+ * */
+
+div.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+/*
+ * html5 specific
+ *
+ * */
+
+table.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+thead, p.tableblock.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.tableblock {
+  margin-top: 0;
+}
+table.tableblock {
+  border-width: 3px;
+  border-spacing: 0px;
+  border-style: solid;
+  border-color: #527bbd;
+  border-collapse: collapse;
+}
+th.tableblock, td.tableblock {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #527bbd;
+}
+
+table.tableblock.frame-topbot {
+  border-left-style: hidden;
+  border-right-style: hidden;
+}
+table.tableblock.frame-sides {
+  border-top-style: hidden;
+  border-bottom-style: hidden;
+}
+table.tableblock.frame-none {
+  border-style: hidden;
+}
+
+th.tableblock.halign-left, td.tableblock.halign-left {
+  text-align: left;
+}
+th.tableblock.halign-center, td.tableblock.halign-center {
+  text-align: center;
+}
+th.tableblock.halign-right, td.tableblock.halign-right {
+  text-align: right;
+}
+
+th.tableblock.valign-top, td.tableblock.valign-top {
+  vertical-align: top;
+}
+th.tableblock.valign-middle, td.tableblock.valign-middle {
+  vertical-align: middle;
+}
+th.tableblock.valign-bottom, td.tableblock.valign-bottom {
+  vertical-align: bottom;
+}
+
+
+/*
+ * manpage specific
+ *
+ * */
+
+body.manpage h1 {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+body.manpage h2 {
+  border-style: none;
+}
+body.manpage div.sectionbody {
+  margin-left: 3em;
+}
+
+@media print {
+  body.manpage div#toc { display: none; }
+}
+
+
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  if (!toc) {
+    return;
+  }
+
+  // Delete existing TOC entries in case we're reloading the TOC.
+  var tocEntriesToRemove = [];
+  var i;
+  for (i = 0; i < toc.childNodes.length; i++) {
+    var entry = toc.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div'
+     && entry.getAttribute("class")
+     && entry.getAttribute("class").match(/^toclevel/))
+      tocEntriesToRemove.push(entry);
+  }
+  for (i = 0; i < tocEntriesToRemove.length; i++) {
+    toc.removeChild(tocEntriesToRemove[i]);
+  }
+
+  // Rebuild TOC entries.
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  // Delete existing footnote entries in case we're reloading the footnodes.
+  var i;
+  var noteholder = document.getElementById("footnotes");
+  if (!noteholder) {
+    return;
+  }
+  var entriesToRemove = [];
+  for (i = 0; i < noteholder.childNodes.length; i++) {
+    var entry = noteholder.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
+      entriesToRemove.push(entry);
+  }
+  for (i = 0; i < entriesToRemove.length; i++) {
+    noteholder.removeChild(entriesToRemove[i]);
+  }
+
+  // Rebuild footnote entries.
+  var cont = document.getElementById("content");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      var note = spans[i].getAttribute("data-note");
+      if (!note) {
+        // Use [\s\S] in place of . so multi-line matches work.
+        // Because JavaScript has no s (dotall) regex flag.
+        note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+        spans[i].innerHTML =
+          "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+        spans[i].setAttribute("data-note", note);
+      }
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+},
+
+install: function(toclevels) {
+  var timerId;
+
+  function reinstall() {
+    asciidoc.footnotes();
+    if (toclevels) {
+      asciidoc.toc(toclevels);
+    }
+  }
+
+  function reinstallAndRemoveTimer() {
+    clearInterval(timerId);
+    reinstall();
+  }
+
+  timerId = setInterval(reinstall, 500);
+  if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", reinstallAndRemoveTimer, false);
+  else
+    window.onload = reinstallAndRemoveTimer;
+}
+
+}
+asciidoc.install();
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>Flexndex - a document index generator</h1>
+<span id="author">Lex Trotman</span><br />
+<span id="email"><tt>&lt;<a href="mailto:elextr@gmail.com">elextr@gmail.com</a>&gt;</tt></span><br />
+<span id="revdate">v0.1</span>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction">Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Most documentation tools let you generate an index of terms in the
+document, but often it is useful to be able to generate indices for
+special purposes.  For example if you are documenting software and
+index to functions, an index to types etc may be useful.</p></div>
+<div class="paragraph"><p>Flexndex is a flexible tool to generate multiple indices as document
+internal links, making it usable with most XML based document formats,
+eg xhtml, docbook or Open Document Format.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_terminology">Terminology</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+index
+</dt>
+<dd>
+<p>
+a list of index entries organised by category
+</p>
+</dd>
+<dt class="hdlist1">
+index entry
+</dt>
+<dd>
+<p>
+a link to a target in the document where there is
+content relevant to the categories of the entry
+</p>
+</dd>
+<dt class="hdlist1">
+target
+</dt>
+<dd>
+<p>
+the point in the document that you want an index entry to
+point to with a list of terms for categorisation
+</p>
+</dd>
+<dt class="hdlist1">
+terms
+</dt>
+<dd>
+<p>
+hierarchical set of text items to categorize the entry within
+the index
+</p>
+</dd>
+</dl></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_operation">Operation</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Flexndex takes index target information encoded in XML comments,
+generates the link anchor at that position and records the specified
+index terms.  It also takes requests for index inclusion encoded in XML
+comments and generates lists of links to the relevant targets at that
+position.</p></div>
+<div class="paragraph"><p>The markup of anchors and link lists is configurable and selected by
+name then document type, so documents in several formats can be
+accomodated.</p></div>
+<div class="paragraph"><p>Flexndex does not specify how the formatted XML comments are included
+in the document, but most document tools allow their inclusion, see
+<a href="#uwa">Using with Asciidoc</a> for an example of configuring the
+Asciidoc tool.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_comment_format">Comment Format</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_index_target_definitions">Index Target Definitions</h3>
+<div class="paragraph"><p>The format of the comments specifying index terms is:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>&lt;!-- ix indexname &lt;attribute_list&gt; --&gt;</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note that the spaces shown above are part of the format, use only one
+space.</p></div>
+<div class="paragraph"><p>The <tt>indexname</tt> is the name of the index this target is part of.</p></div>
+<div class="paragraph"><p>The <tt>attribute_list</tt> is a comma separated list of:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+index terms in order of primary, secondary, tertiary etc, followed by
+</p>
+</li>
+<li>
+<p>
+named attributes in name=value form.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Flexndex does not restrict how many levels an index has.</p></div>
+<div class="paragraph"><p>Named attributes other than the predefined ones will be available for
+substitution into the output markup, either in the anchor or the entry
+in the index.</p></div>
+<div class="paragraph"><p>The predefined named attributes are:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+text
+</dt>
+<dd>
+<p>
+the text to use in the index entry for links to this target.
+</p>
+</dd>
+</dl></div>
+</div>
+<div class="sect2">
+<h3 id="_index_inclusion_request">Index Inclusion Request</h3>
+<div class="paragraph"><p>The format of the comments requesting inclusion of an index is:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>&lt;!-- ixhere indexname &lt;attribute_list&gt; --&gt;</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note that the spaces shown above are part of the format, use only one
+space.</p></div>
+<div class="paragraph"><p>The <tt>indexname</tt> is the name of the index to put here.</p></div>
+<div class="paragraph"><p>The attribute list has the same format as the index term definition.
+Any initial index terms request that the index placed here be
+restricted to only entries that are prefixed by the specified terms.</p></div>
+<div class="paragraph"><p>Named attributes other than the predefined ones will be available for
+substitution into the output markup of the index.</p></div>
+<div class="paragraph"><p>The predefined named attributes are:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+levels
+</dt>
+<dd>
+<p>
+limit the output to this number of levels
+</p>
+</dd>
+<dt class="hdlist1">
+style
+</dt>
+<dd>
+<p>
+name of the style of index to output, see <a href="#pis">Predefined Index Styles</a>
+</p>
+</dd>
+</dl></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration">Configuration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_basic_configuration_file_format">Basic Configuration file format</h3>
+<div class="paragraph"><p>The basic setting file format is a list of key=value entries, each
+starting on a new line.</p></div>
+<div class="paragraph"><p>Keys are a dot separated list of keys for each level in the hierarchy.</p></div>
+<div class="paragraph"><p>Values are all text following the equals (=) not including leading or
+trailing whitespace.  Values extend to include the next line(s) if the
+last non-whitespace character of the line is a backslash (\\).</p></div>
+<div class="paragraph"><p>Lines beginning with # are coments and ignored.</p></div>
+<div class="paragraph"><p>For typing convenience lines beginning with open square bracket specify
+a starting position in the hierarchy for all following keys until
+another square bracket line.  The line consists of a dot separated
+list of keys for each level followed by a close square bracket.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_settings_understood_by_flexndex">Settings Understood by Flexndex</h3>
+<div class="paragraph"><p>In the following table items shown like <strong>&lt;this&gt;</strong> are placeholders to
+be filled by the user with the appropriate values as explained after
+the table.  All other characters in the setting are expected verbatim.</p></div>
+<div class="paragraph"><p>The substitutions column identifies which built-in attributes are
+substituted, see the following table.</p></div>
+<div class="tableblock">
+<table rules="all"
+width="100%"
+frame="border"
+cellspacing="0" cellpadding="4">
+<col width="33%" />
+<col width="16%" />
+<col width="16%" />
+<col width="33%" />
+<tbody>
+<tr>
+<td align="left" valign="top"><p class="table">Setting</p></td>
+<td align="left" valign="top"><p class="table">Optional, default</p></td>
+<td align="left" valign="top"><p class="table">Substitutions</p></td>
+<td align="left" valign="top"><p class="table">Use</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">anchors.<strong>&lt;backend&gt;</strong></p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">target</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after the ix comment, usually defines a link anchor</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.complete</p></td>
+<td align="left" valign="top"><p class="table">yes, "no"</p></td>
+<td align="left" valign="top"><p class="table">nothing</p></td>
+<td align="left" valign="top"><p class="table">Set to start with "y" to generate complete term hierarchy, ie if a,b,c
+were the first terms then a and a,b would also be generated</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.prefix</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before the index</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.postfix</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after the index</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.empty_message</p></td>
+<td align="left" valign="top"><p class="table">yes, "Empty Index</p></td>
+<td align="left" valign="top"><p class="table">here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output if the index has no contents, prefix and postfix not
+output</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.entry_start</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before each entry</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.entry_end</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after each entry</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.text_internal</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here ixterm</p></td>
+<td align="left" valign="top"><p class="table">The markup to output if this term is not the last one for the target
+entry</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.text_last</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here ixterm</p></td>
+<td align="left" valign="top"><p class="table">The markup to output for the last term if it cannot to be a link, ie
+it has more than one target</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.link_last</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here ixterm target</p></td>
+<td align="left" valign="top"><p class="table">The markup to output for the last term if it can be a link</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.multi_target</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">here ixterm target</p></td>
+<td align="left" valign="top"><p class="table">The markup to output for each of multiple targets</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="paragraph"><p>The substitutions column in the above table means:</p></div>
+<div class="tableblock">
+<table rules="all"
+width="50%"
+frame="border"
+cellspacing="0" cellpadding="4">
+<col width="20%" />
+<col width="80%" />
+<tbody>
+<tr>
+<td align="left" valign="top"><p class="table">none</p></td>
+<td align="left" valign="top"><p class="table">No substitutions</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">here</p></td>
+<td align="left" valign="top"><p class="table">Keyword attributes from the ixhere comment</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">ixterm</p></td>
+<td align="left" valign="top"><p class="table">The term value for the current level</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">target</p></td>
+<td align="left" valign="top"><p class="table">The attributes from the ix comment and {ixtgt} and {tgt_text}<sup>[1]</sup></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="paragraph"><p>Notes:</p></div>
+<div class="paragraph"><p>[1] {ixtgt} is a unique numeric piece of text identified with the
+target, use it to make link targets, {tgt_text} is either the <em>text</em>
+attribute from the ix comment, if it exists, otherwise the last term.</p></div>
+<div class="paragraph"><p>The meanings of the placeholders are:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+style_name
+</dt>
+<dd>
+<p>
+is the name of a style being defined
+</p>
+</dd>
+<dt class="hdlist1">
+backend
+</dt>
+<dd>
+<p>
+is the name of the backend that the setting applies to
+</p>
+</dd>
+<dt class="hdlist1">
+level_no
+</dt>
+<dd>
+<p>
+is the level of the term that this setting applies to.
+Caution, level_no is text, it is not a number.  Convention is to use
+"1", "2" etc as it just defines a sort order, beware "10" sorts before
+"2".
+</p>
+</dd>
+</dl></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_command_reference">Command Reference</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre><tt>flexndex [options] infile outfile</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note that as the outfile is the same type as the infile there is no
+obvious way of generating an output filename automatically, so both
+infile and outfile are required.</p></div>
+<div class="paragraph"><p>Options are:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+-b, --backend
+</dt>
+<dd>
+<p>
+specify the backend format to generate output in,
+built-in options are <em>xhtml11</em>,  and <em>docbook45</em> which are aliased as
+<em>html</em>, and <em>docbook</em> respectively.  Default is <em>xhtml11</em>. Note
+docbook not supported in v0.1.
+</p>
+</dd>
+<dt class="hdlist1">
+-c, --config
+</dt>
+<dd>
+<p>
+specify configuration files to load, can be specified
+multiple times, settings in files to the right can override those to
+the left or builtin configuration.  There are no default files loaded.
+</p>
+</dd>
+<dt class="hdlist1">
+-h, --help
+</dt>
+<dd>
+<p>
+print this reference and exit
+</p>
+</dd>
+<dt class="hdlist1">
+--version
+</dt>
+<dd>
+<p>
+print version and exit
+</p>
+</dd>
+</dl></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="pis">Predefined Index Styles</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+dotted
+</dt>
+<dd>
+<p>
+a simple built-in non-grouped style that shows each entry as:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>term1.term2.term3
+term1.term2.term4 [target1] [target2]</tt></pre>
+</div></div>
+<div class="paragraph"><p>where the term3 has only one target and term4 has multiple targets each
+shown in []. The text term3, target1 and target2 are links.</p></div>
+</dd>
+</dl></div>
+<div class="paragraph"><p>simple-grouped::a simple built-in grouped style shows as a traditional
+grouped index as:</p></div>
+<div class="paragraph"><p>+</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>term1
+    term2
+        term3
+        term4 [target1] [target2]</tt></pre>
+</div></div>
+<div class="paragraph"><p>+
+where term3 target1 and target2 are links.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="uwa">Using With Asciidoc</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Flexndex can be used with the xml generated by the Asciidoc tool in
+xhtml11, docbook and ODT backends.</p></div>
+<div class="paragraph"><p>The easiest way of inserting Flexndex comments is to define two
+macros:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>ix:indexname[attribute_list]
+ishere::indexname[attrbiute_list]</tt></pre>
+</div></div>
+<div class="paragraph"><p>to generate the index target comments and index comments respectively.
+Note the ixhere macro is a block macro and ix is inline.</p></div>
+<div class="paragraph"><p>Put the following in an appropriate asciidoc.conf file:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>[macros]
+(?su)(?&lt;!\w)[\\]?(?P&lt;name&gt;ix):(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]:
+(?u)(?&lt;!\w)[\\]?(?P&lt;name&gt;ixhere)::(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]: #
+
+[ix-inlinemacro]
+&lt;!-- ix {target} &lt;{attrlist}&gt; --&gt;
+
+[ixhere-blockmacro]
+&lt;!-- ixhere {target} &lt;{attrlist=}&gt; --&gt;</tt></pre>
+</div></div>
+<div class="paragraph"><p>or if using a release after 8.6.7 or hg newer than release
+c715f6c96481 (June 10 2012) then you can place:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>:macros.(?su)(?&lt;!\w)[\\]?(?P&lt;name&gt;ix):(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]:
+:macros.(?u)(?&lt;!\w)[\\]?(?P&lt;name&gt;ixhere)::(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]: #
+:ix-inlinemacro.: &lt;!-- ix {target} &lt;{attrlist}&gt; --&gt;
+:ixhere-blockmacro.: &lt;!-- ixhere {target} &lt;{attrlist=}&gt; --&gt;</tt></pre>
+</div></div>
+<div class="paragraph"><p>in the header of the document and avoid the need for a separate
+asciidoc.conf.</p></div>
+<div class="paragraph"><p>Run asciidoc to create the .html or .xml file then run flexndex.  The
+xml can then be processed further by a2x as normal by specifying the
+.xml file output from flexndex as input to a2x.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_futures">Futures</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_probable">Probable</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+switch built-in styles to config file format as a string
+</p>
+</li>
+<li>
+<p>
+docbook built-ins
+</p>
+</li>
+<li>
+<p>
+multi-column indices
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_possible">Possible</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+switch built-ins to a standard config file
+</p>
+</li>
+<li>
+<p>
+other backends as standard
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-06-14 18:16:46 EST
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+Flexndex - A flexible document index generator
+==============================================
+Lex Trotman <elextr@gmail.com>
+v0.1
+
+Introduction
+------------
+
+Most documentation tools let you generate an index of terms in the 
+document, but often it is useful to be able to generate indices for 
+special purposes.  For example if you are documenting software and 
+index to functions, an index to types etc may be useful.
+
+Flexndex is a flexible tool to generate multiple indices as document 
+internal links, making it usable with most XML based document formats, 
+eg xhtml, docbook or Open Document Format.
+
+For more information see the full manual.
+
+Installation
+------------
+
+Flexndex is a single python file.  Just place it in your python path. 
+Requires Python 2.7.
+
+The manual is available in Asciidoc and html formats.
