@@ -99,7 +99,15 @@ substitution into the output markup of the index.
 
 The predefined named attributes are:
 
-levels:: limit the output to this number of levels
+levels:: limit the output to these levels.
++
+n1-n2::: from level n1 to level n2 inclusive
+n1-::: from level n1 up inclusive
+-n1, n1::: up to level n1 inclusive
++
+where n1 and n2 are decimal numbers counting from one.  Missing levels 
+attribute means all.
+
 style:: name of the style of index to output, see <<pis, Predefined Index 
 Styles>>
 

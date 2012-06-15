@@ -166,7 +166,8 @@ xhtml_dotted_3.text_last = '{ixterm} '
 xhtml_dotted_3.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}]</a>'
 xhtml_dotted = Style()
 xhtml_dotted.levels = [ xhtml_dotted_1, xhtml_dotted_2, xhtml_dotted_3 ]
-xhtml_dotted.entry_end = '<br/>'
+xhtml_dotted.entry_start = '<p>'
+xhtml_dotted.entry_end = '</p>\n'
 dotted_styles = { 'xhtml11' : xhtml_dotted }
 
 xhtml_grouped_1 = Estyle()
@@ -235,7 +236,7 @@ def subout(o, sstr, *dicts, **kwargs):
                 o.write('{'+bit[1]+'}')
 
 # output an uncolumnated index
-def uncoledout(o, k, styleob, hereattrs, tgts, comp):
+def uncoledout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
     subout(o, styleob.prefix, hereattrs )
     entry = []
     for tentry in k :
@@ -250,8 +251,9 @@ def uncoledout(o, k, styleob, hereattrs, tgts, comp):
                 tgt = tgts[tentry]
                 entry = list(tentry)
                 done = True
+            if len(entry) > maxl : continue
             subout(o, styleob.entry_start, hereattrs )
-            for term, tstyle in zip(entry[:-1], styleob.levels):
+            for term, tstyle in zip(entry[minl:-1], styleob.levels):
                 subout(o, tstyle.text_internal, hereattrs, ixterm=term)
             if len(entry) <= len(styleob.levels):
                 tstyle = styleob.levels[len(entry)-1]
@@ -294,6 +296,7 @@ def pass1(args):
                 rno += 1
     if args.verbose > 0 : print 'Pass 1 found', ic, 'ix entries'
 
+levels_re = re.compile(r'(\d)*-?(\d)*')
 def pass2(args):
     if args.verbose > 1 : print "Pass 2"
     ic = 0; hc = 0
@@ -308,16 +311,17 @@ def pass2(args):
                 tgts = inds.get(m.group('target'), {})
                 a, hereattrs = attr_tuple(m.group('attrlist'))
                 k = tgts.keys()
-                if 'levels' in hereattrs:
-                    #TODO levels max, min
-                    l = int(hereattrs['levels'])
-                    k = [ x for x in k if len(x) <= l ]
+                if args.verbose > 2 : print 'Terms', k
                 if len(a) > 0:
                     k = [ x for x in k if x[0:len(a)] == a ]
-                if len(k) == 0:
-                    subout(o, styleob.empty_message, hereattrs)
-                    continue
-                k.sort()
+                if 'levels' in hereattrs:
+                    minl, maxl = levels_re.match(hereattrs['levels']).groups()
+                    if maxl: maxl = int(maxl)
+                    else: maxl = 1000
+                    if minl: minl = int(minl)-1
+                    else: minl = 0
+                else:
+                    minl, maxl = (0, 1000)
                 style = hereattrs.get('style', default_style)
                 if style not in styles :
                     print 'Warning: index style', style, 
@@ -325,7 +329,12 @@ def pass2(args):
                     style = default_style
                 styleob = styles[style].get(args.backend)
                 if styleob is not None:
-                    uncoledout(o, k, styleob, hereattrs, tgts, styleob.complete.startswith('y'))
+                    if len(k) == 0:
+                        subout(o, styleob.empty_message, hereattrs)
+                    else:
+                        k.sort()
+                        uncoledout(o, k, styleob, hereattrs, tgts,
+                                styleob.complete.startswith('y'), minl, maxl)
                 else:
                     print "Warning: backend", args.backend,
                     print "not found for style", style, ", index omitted",
