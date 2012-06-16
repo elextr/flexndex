@@ -6,42 +6,42 @@ v0.1
 Introduction
 ------------
 
-Most documentation tools let you generate an index of terms in the 
-document, but often it is useful to be able to generate indices for 
-special purposes.  For example if you are documenting software and 
+Most documentation tools let you generate an index of terms in the
+document, but often it is useful to be able to generate indices for
+special purposes.  For example if you are documenting software and
 index to functions, an index to types etc may be useful.
 
-Flexndex is a flexible tool to generate multiple indices as document 
-internal links, making it usable with most XML based document formats, 
+Flexndex is a flexible tool to generate multiple indices as document
+internal links, making it usable with most XML based document formats,
 eg xhtml, docbook or Open Document Format.
 
 Terminology
 -----------
 
 index:: a list of index entries organised by category
-index entry:: a link to a target in the document where there is 
+index entry:: a link to a target in the document where there is
 content relevant to the categories of the entry
-target:: the point in the document that you want an index entry to 
+target:: the point in the document that you want an index entry to
 point to with a list of terms for categorisation
-terms:: hierarchical set of text items to categorize the entry within 
+terms:: hierarchical set of text items to categorize the entry within
 the index
 
 Operation
 ---------
 
-Flexndex takes index target information encoded in XML comments, 
-generates the link anchor at that position and records the specified 
-index terms.  It also takes requests for index inclusion encoded in XML 
-comments and generates lists of links to the relevant targets at that 
+Flexndex takes index target information encoded in XML comments,
+generates the link anchor at that position and records the specified
+index terms.  It also takes requests for index inclusion encoded in XML
+comments and generates lists of links to the relevant targets at that
 position.
 
-The markup of anchors and link lists is configurable and selected by 
-name then document type, so documents in several formats can be 
+The markup of anchors and link lists is configurable and selected by
+name then document type, so documents in several formats can be
 accomodated.
 
-Flexndex does not specify how the formatted XML comments are included 
-in the document, but most document tools allow their inclusion, see 
-<<uwa, Using with Asciidoc>> for an example of configuring the 
+Flexndex does not specify how the formatted XML comments are included
+in the document, but most document tools allow their inclusion, see
+<<uwa, Using with Asciidoc>> for an example of configuring the
 Asciidoc tool.
 
 Comment Format
@@ -56,7 +56,7 @@ The format of the comments specifying index terms is:
 <!-- ix indexname <attribute_list> -->
 ----
 
-Note that the spaces shown above are part of the format, use only one 
+Note that the spaces shown above are part of the format, use only one
 space.
 
 The +indexname+ is the name of the index this target is part of.
@@ -68,8 +68,8 @@ The +attribute_list+ is a comma separated list of:
 
 Flexndex does not restrict how many levels an index has.
 
-Named attributes other than the predefined ones will be available for 
-substitution into the output markup, either in the anchor or the entry 
+Named attributes other than the predefined ones will be available for
+substitution into the output markup, either in the anchor or the entry
 in the index.
 
 The predefined named attributes are:
@@ -85,16 +85,16 @@ The format of the comments requesting inclusion of an index is:
 <!-- ixhere indexname <attribute_list> -->
 ----
 
-Note that the spaces shown above are part of the format, use only one 
+Note that the spaces shown above are part of the format, use only one
 space.
 
 The +indexname+ is the name of the index to put here.
 
-The attribute list has the same format as the index term definition.  
-Any initial index terms request that the index placed here be 
+The attribute list has the same format as the index term definition.
+Any initial index terms request that the index placed here be
 restricted to only entries that are prefixed by the specified terms.
 
-Named attributes other than the predefined ones will be available for 
+Named attributes other than the predefined ones will be available for
 substitution into the output markup of the index.
 
 The predefined named attributes are:
@@ -105,10 +105,10 @@ n1-n2::: from level n1 to level n2 inclusive
 n1-::: from level n1 up inclusive
 -n1, n1::: up to level n1 inclusive
 +
-where n1 and n2 are decimal numbers counting from one.  Missing levels 
+where n1 and n2 are decimal numbers counting from one.  Missing levels
 attribute means all.
 
-style:: name of the style of index to output, see <<pis, Predefined Index 
+style:: name of the style of index to output, see <<pis, Predefined Index
 Styles>>
 
 Configuration
@@ -117,30 +117,30 @@ Configuration
 Basic Configuration file format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The basic setting file format is a list of key=value entries, each 
+The basic setting file format is a list of key=value entries, each
 starting on a new line.
 
 Keys are a dot separated list of keys for each level in the hierarchy.
 
-Values are all text following the equals (=) not including leading or 
-trailing whitespace.  Values extend to include the next line(s) if the 
+Values are all text following the equals (=) not including leading or
+trailing whitespace.  Values extend to include the next line(s) if the
 last non-whitespace character of the line is a backslash (\\).
 
 Lines beginning with # are coments and ignored.
 
-For typing convenience lines beginning with open square bracket specify 
-a starting position in the hierarchy for all following keys until 
-another square bracket line.  The line consists of a dot separated 
+For typing convenience lines beginning with open square bracket specify
+a starting position in the hierarchy for all following keys until
+another square bracket line.  The line consists of a dot separated
 list of keys for each level followed by a close square bracket.
 
 Settings Understood by Flexndex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the following table items shown like *<this>* are placeholders to 
-be filled by the user with the appropriate values as explained after 
+In the following table items shown like *<this>* are placeholders to
+be filled by the user with the appropriate values as explained after
 the table.  All other characters in the setting are expected verbatim.
 
-The substitutions column identifies which built-in attributes are 
+The substitutions column identifies which built-in attributes are
 substituted, see the following table.
 
 [cols="2,1,1,2"]
@@ -150,7 +150,7 @@ substituted, see the following table.
 | Markup to output after the ix comment, usually defines a link anchor
 
 | styles.*<style_name>*.*<backend>*.complete | yes, "no" | nothing
-| Set to start with "y" to generate complete term hierarchy, ie if a,b,c 
+| Set to start with "y" to generate complete term hierarchy, ie if a,b,c
 were the first terms then a and a,b would also be generated
 
 | styles.*<style_name>*.*<backend>*.prefix | yes, nothing | here
@@ -159,7 +159,7 @@ were the first terms then a and a,b would also be generated
 | styles.*<style_name>*.*<backend>*.postfix | yes, nothing | here
 | Markup to output after the index
 
-| styles.*<style_name>*.*<backend>*.empty_message | yes, "Empty Index | here 
+| styles.*<style_name>*.*<backend>*.empty_message | yes, "Empty Index | here
 | Markup to output if the index has no contents, prefix and postfix not
 output
 
@@ -169,14 +169,14 @@ output
 | styles.*<style_name>*.*<backend>*.entry_end | yes, nothing | here
 | Markup to output after each entry
 
-| styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_internal 
+| styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_internal
 | yes, nothing | here ixterm
-| The markup to output if this term is not the last one for the target 
+| The markup to output if this term is not the last one for the target
 entry
 
 | styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_last
 | yes, nothing | here ixterm
-| The markup to output for the last term if it cannot to be a link, ie 
+| The markup to output for the last term if it cannot to be a link, ie
 it has more than one target
 
 | styles.*<style_name>*.*<backend>*.levels.*<level_no>*.link_last
@@ -195,14 +195,14 @@ The substitutions column in the above table means:
 | none | No substitutions
 | here | Keyword attributes from the ixhere comment
 | ixterm | The term value for the current level
-| target 
+| target
 | The attributes from the ix comment and \{ixtgt} and \{tgt_text}^[1]^
 |====
 
 Notes:
 
-[1] \{ixtgt} is a unique numeric piece of text identified with the 
-target, use it to make link targets, \{tgt_text} is either the 'text' 
+[1] \{ixtgt} is a unique numeric piece of text identified with the
+target, use it to make link targets, \{tgt_text} is either the 'text'
 attribute from the ix comment, if it exists, otherwise the last term.
 
 The meanings of the placeholders are:
@@ -211,9 +211,9 @@ style_name:: is the name of a style being defined
 
 backend:: is the name of the backend that the setting applies to
 
-level_no:: is the level of the term that this setting applies to. 
-Caution, level_no is text, it is not a number.  Convention is to use 
-"1", "2" etc as it just defines a sort order, beware "10" sorts before 
+level_no:: is the level of the term that this setting applies to.
+Caution, level_no is text, it is not a number.  Convention is to use
+"1", "2" etc as it just defines a sort order, beware "10" sorts before
 "2".
 
 Command Reference
@@ -223,19 +223,19 @@ Command Reference
 flexndex [options] infile outfile
 ----
 
-Note that as the outfile is the same type as the infile there is no 
-obvious way of generating an output filename automatically, so both 
+Note that as the outfile is the same type as the infile there is no
+obvious way of generating an output filename automatically, so both
 infile and outfile are required.
 
 Options are:
 
--b, --backend:: specify the backend format to generate output in, 
-built-in options are 'xhtml11',  and 'docbook45' which are aliased as 
-'html', and 'docbook' respectively.  Default is 'xhtml11'. Note 
+-b, --backend:: specify the backend format to generate output in,
+built-in options are 'xhtml11',  and 'docbook45' which are aliased as
+'html', and 'docbook' respectively.  Default is 'xhtml11'. Note
 docbook not supported in v0.1.
 
--c, --config:: specify configuration files to load, can be specified 
-multiple times, settings in files to the right can override those to 
+-c, --config:: specify configuration files to load, can be specified
+multiple times, settings in files to the right can override those to
 the left or builtin configuration.  There are no default files loaded.
 
 -h, --help:: print this reference and exit
@@ -253,10 +253,10 @@ term1.term2.term3
 term1.term2.term4 [target1] [target2]
 ----
 +
-where the term3 has only one target and term4 has multiple targets each 
+where the term3 has only one target and term4 has multiple targets each
 shown in []. The text term3, target1 and target2 are links.
 
-simple-grouped::a simple built-in grouped style shows as a traditional 
+simple-grouped::a simple built-in grouped style shows as a traditional
 grouped index as:
 +
 ----
@@ -272,10 +272,10 @@ where term3 target1 and target2 are links.
 Using With Asciidoc
 -------------------
 
-Flexndex can be used with the xml generated by the Asciidoc tool in 
+Flexndex can be used with the xml generated by the Asciidoc tool in
 xhtml11, docbook and ODT backends.
 
-The easiest way of inserting Flexndex comments is to define two 
+The easiest way of inserting Flexndex comments is to define two
 macros:
 
 ----
@@ -283,7 +283,7 @@ ix:indexname[attribute_list]
 ishere::indexname[attrbiute_list]
 ----
 
-to generate the index target comments and index comments respectively. 
+to generate the index target comments and index comments respectively.
 Note the ixhere macro is a block macro and ix is inline.
 
 Put the following in an appropriate asciidoc.conf file:
@@ -300,7 +300,7 @@ Put the following in an appropriate asciidoc.conf file:
 <!-- ixhere {target} <{attrlist=}> -->
 ----
 
-or if using a release after 8.6.7 or hg newer than release 
+or if using a release after 8.6.7 or hg newer than release
 c715f6c96481 (June 10 2012) then you can place:
 
 ----
@@ -310,11 +310,11 @@ c715f6c96481 (June 10 2012) then you can place:
 :ixhere-blockmacro.: <!-- ixhere {target} <{attrlist=}> -->
 ----
 
-in the header of the document and avoid the need for a separate 
+in the header of the document and avoid the need for a separate
 asciidoc.conf.
 
-Run asciidoc to create the .html or .xml file then run flexndex.  The 
-xml can then be processed further by a2x as normal by specifying the 
+Run asciidoc to create the .html or .xml file then run flexndex.  The
+xml can then be processed further by a2x as normal by specifying the
 .xml file output from flexndex as input to a2x.
 
 Futures
@@ -326,6 +326,7 @@ Probable
 - switch built-in styles to config file format as a string
 - docbook built-ins
 - multi-column indices
+- CSS stylable standard styles
 
 Possible
 ~~~~~~~~

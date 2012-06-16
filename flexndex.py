@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 #
 #  untitled.py
-#  
+#
 #  Copyright 2012 Lex <lex@fred5>
-#  
+#
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -18,7 +18,7 @@
 #  * Neither the name of the copyright holder nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -30,7 +30,7 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  
+#
 
 import re, argparse, string
 
@@ -117,7 +117,7 @@ class Estyle:
         self.text_internal = settings.get('text_internal')
         self.link_last = settings.get('link_last')
         self.text_last = settings.get('text_last')
-        self.multi_target = settings.get('multi_target')          
+        self.multi_target = settings.get('multi_target')
 
 # Layout of info in class Style
 #
@@ -268,16 +268,16 @@ def uncoledout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
                 if lt > 1:
                     for t in tgt.items():
                         txt = t[1].get('text', entry[-1])
-                        subout(o, tstyle.multi_target, t[1], hereattrs, 
+                        subout(o, tstyle.multi_target, t[1], hereattrs,
                             ixterm = entry[-1], ixtgt=t[0], tgt_text=txt)
                 subout(o, styleob.entry_end, hereattrs)
             else:
                 print "Warning, not enough style levels for target terms", entry
     subout(o, styleob.postfix, hereattrs)
-    
-ix_re = re.compile(r'<!-- ix (?P<target>\w+) <(?P<attrlist>[^>]*)> -->')
-ixhere_re = re.compile(r'<!-- ixhere (?P<target>\w+) <(?P<attrlist>[^>]*)> -->')
-    
+
+ix_re = re.compile(r'<!-- ix (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
+ixhere_re = re.compile(r'<!-- ixhere (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
+
 def pass1(args):
     if args.verbose > 1 : print "Pass 1"
     ic = 0
@@ -324,7 +324,7 @@ def pass2(args):
                     minl, maxl = (0, 1000)
                 style = hereattrs.get('style', default_style)
                 if style not in styles :
-                    print 'Warning: index style', style, 
+                    print 'Warning: index style', style,
                     print "not found, using default, at line ", lno
                     style = default_style
                 styleob = styles[style].get(args.backend)
