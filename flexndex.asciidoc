@@ -1,7 +1,10 @@
 Flexndex - a document index generator
 =====================================
 Lex Trotman <elextr@gmail.com>
-v0.1
+v0.1alpha
+:max-width: 55em
+
+:listingblock.: <pre><code>|</code></pre>
 
 Introduction
 ------------
@@ -146,53 +149,62 @@ substituted, see the following table.
 [cols="2,1,1,2"]
 |====
 | Setting | Optional, default | Substitutions | Use
-| anchors.*<backend>* | yes, nothing | target
+| default_style | yes, 'simple-dotted' | nothing
+| Name of default style if not specified in ixhere comment
+
+| attribute.*<name>* | yes, nothing | nothing
+| Value to substitute for occurrances of {name}
+
+| anchors.*<backend>* | yes, nothing | std target
 | Markup to output after the ix comment, usually defines a link anchor
 
 | styles.*<style_name>*.*<backend>*.complete | yes, "no" | nothing
 | Set to start with "y" to generate complete term hierarchy, ie if a,b,c
 were the first terms then a and a,b would also be generated
 
-| styles.*<style_name>*.*<backend>*.prefix | yes, nothing | here
+| styles.*<style_name>*.*<backend>*.prefix | yes, nothing | std here
 | Markup to output before the index
 
-| styles.*<style_name>*.*<backend>*.postfix | yes, nothing | here
+| styles.*<style_name>*.*<backend>*.postfix | yes, nothing | std here
 | Markup to output after the index
 
-| styles.*<style_name>*.*<backend>*.empty_message | yes, "Empty Index | here
+| styles.*<style_name>*.*<backend>*.empty_message | yes, "Empty Index | std here
 | Markup to output if the index has no contents, prefix and postfix not
 output
 
-| styles.*<style_name>*.*<backend>*.entry_start | yes, nothing | here
+| styles.*<style_name>*.*<backend>*.entry_start | yes, nothing | std here
 | Markup to output before each entry
 
-| styles.*<style_name>*.*<backend>*.entry_end | yes, nothing | here
+| styles.*<style_name>*.*<backend>*.entry_end | yes, nothing | std here
 | Markup to output after each entry
 
 | styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_internal
-| yes, nothing | here ixterm
+| yes, nothing | std here ixterm
 | The markup to output if this term is not the last one for the target
 entry
 
 | styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_last
-| yes, nothing | here ixterm
+| yes, nothing | std here ixterm
 | The markup to output for the last term if it cannot to be a link, ie
 it has more than one target
 
 | styles.*<style_name>*.*<backend>*.levels.*<level_no>*.link_last
-| yes, nothing | here ixterm target
+| yes, nothing | std here ixterm target
 | The markup to output for the last term if it can be a link
 
 | styles.*<style_name>*.*<backend>*.levels.*<level_no>*.multi_target
-| yes, nothing | here ixterm target
+| yes, nothing | std here ixterm target
 | The markup to output for each of multiple targets
 |====
+
+Substitutions are not recursive, ie {attr} in an attribute value is not 
+substituted when the attribute is.
 
 The substitutions column in the above table means:
 
 [cols="1,4", width="50%"]
 |====
-| none | No substitutions
+| std | Built-in and configured attributes
 | here | Keyword attributes from the ixhere comment
 | ixterm | The term value for the current level
 | target
@@ -204,6 +216,18 @@ Notes:
 [1] \{ixtgt} is a unique numeric piece of text identified with the
 target, use it to make link targets, \{tgt_text} is either the 'text'
 attribute from the ix comment, if it exists, otherwise the last term.
+
+The following attributes are built-in, but can be overridden by config 
+files:
+
+|====
+| Name | Value | Use
+| sp | ' ' 
+| Use for leading or trailing spaces where they would otherwise be 
+stripped off
+
+| nl | '\n' | Newline
+|====
 
 The meanings of the placeholders are:
 
@@ -246,7 +270,7 @@ the left or builtin configuration.  There are no default files loaded.
 Predefined Index Styles
 -----------------------
 
-dotted:: a simple built-in non-grouped style that shows each entry as:
+dotted:: a simple (no CSS) built-in non-grouped style that shows each entry as:
 +
 ----
 term1.term2.term3
@@ -256,7 +280,7 @@ term1.term2.term4 [target1] [target2]
 where the term3 has only one target and term4 has multiple targets each
 shown in []. The text term3, target1 and target2 are links.
 
-simple-grouped::a simple built-in grouped style shows as a traditional
+simple-grouped:: a simple (no CSS) built-in grouped style shows as a traditional
 grouped index as:
 +
 ----

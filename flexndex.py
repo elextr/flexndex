@@ -32,7 +32,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import re, argparse, string
+import re, argparse, string, cStringIO
+from contextlib import closing
+
+# command line arguments
+args = argparse.Namespace()
+
+# predefined attributes
+attributes = { 'sp' : ' ', 'nl' : '\n' }
 
 # Settings file, hierarchical keys, values text only
 #
@@ -53,39 +60,56 @@ class Settings:
         "Key is iterable of key hierarchy, makes missing levels, set value"
         s = self
         for k in key:
-            if k not in s.d: s.d[k] = settings()
+            if k not in s.d: s.d[k] = Settings()
             s = s.d[k]
         s.v = value
     def get(self, key, default=None):
-        "Key is iterable of key hierarchy, returns a settings object"
+        """Key is and iterable, returns a settings object or None
+           Key is a string, returns a value or default"""
         s = self
-        for k in key:
-            if k not in s.d: return default
-            s = s.d[k]
-        return s
+        if isinstance(key, str):
+            if key in s.d: return s.d[key].v
+            else: return default
+        else:
+            for k in key:
+                if k not in s.d: return None
+                s = s.d[k]
+            return s
     def keys(self):
-        return s.d.keys()
+        return self.d.keys()
     def sorted_keys(self):
-        s = s.d.keys(); s.sort()
+        s = self.d.keys(); s.sort()
         return s
     def value(self):
-        return v
+        return self.v
     def parse(self, file):
-        "Parse a settings file into this object"
+        "Parse a settings file object into this Settings object"
         prefix = []; line = file.readline()
         while line :
-            line = strip(line)
+            line = line.strip()
+            if args.verbose > 3: print "Config line:", len(line), line,
             if len(line) > 0 and line[0] != '#':
                 if line[0] == '[':
                     prefix = line[1:-1].split('.')
+                    if args.verbose > 3: print "=>", prefix
                 else:
-                    k,v = line[1:-1].split('=')
-                    key = prefix
+                    k,v = line.split('=',1)
+                    key = list(prefix)
                     key.extend(k.rstrip().split('.'))
                     v = v.strip()
                     while len(v) > 0 and v[-1] == '\\':
                         v = v[:-1]+strip(file.readline())
+                    if args.verbose > 3: print "=>", key, '=', v
                     self.set(key, v)
+            else:
+                if args.verbose > 3: print 'ignored'
+            line = file.readline()
+    def debug_print(self, leader=''):
+        print leader, "=", self.v
+        for k in self.d.keys():
+            if leader: l = leader + '.' + k
+            else: l = k
+            self.d[k].debug_print(l)
 
 # return count of shared prefix of two iterables
 def shared_prefix(i1, i2):
@@ -114,10 +138,10 @@ def shared_prefix(i1, i2):
 
 class Estyle:
     def __init__(self, settings=Settings()):
-        self.text_internal = settings.get('text_internal')
-        self.link_last = settings.get('link_last')
-        self.text_last = settings.get('text_last')
-        self.multi_target = settings.get('multi_target')
+        self.text_internal = settings.get('text_internal', '')
+        self.link_last = settings.get('link_last', '')
+        self.text_last = settings.get('text_last', '')
+        self.multi_target = settings.get('multi_target', '')
 
 # Layout of info in class Style
 #
@@ -130,6 +154,8 @@ class Estyle:
 
 class Style:
     def __init__(self, settings=Settings()):
+        #if args.verbose > 2: 
+        settings.debug_print()
         self.complete = settings.get('complete', 'n')
         self.entry_start = settings.get('entry_start', '')
         self.entry_end = settings.get('entry_end', '')
@@ -137,10 +163,11 @@ class Style:
         self.postfix = settings.get('postfix', '')
         self.empty_message = settings.get('empty_message', 'Empty Index')
         self.levels = []
-        l = settings.get('levels', None)
+        l = settings.get(('levels',), None)
+        print 'levels', l
         if l is not None:
             for i in l.sorted_keys():
-                self.levels.append( Estyle( l.get(i) ) )
+                self.levels.append( Estyle( l.get((i,)) ) )
 
 # Built-in style definitions
 
@@ -149,53 +176,42 @@ backend_aliases = { 'html' : 'xhtml11', 'docbook' : 'docbook45' }
 anchors = { 'xhtml11' : '<a id="ix{ixtgt}"></a>' ,
           'docbook45' : '<anchor id="ix{ixtgt}"/>' }
 
-xhtml_dotted_1 = Estyle()
-xhtml_dotted_1.text_internal = '{ixterm}.'
-xhtml_dotted_1.link_last = '<a href="#ix{ixtgt}">{ixterm}</a> '
-xhtml_dotted_1.text_last = '{ixterm} '
-xhtml_dotted_1.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}] </a>'
-xhtml_dotted_2 = Estyle()
-xhtml_dotted_2.text_internal = '{ixterm}.'
-xhtml_dotted_2.link_last = '<a href="#ix{ixtgt}">{ixterm}</a> '
-xhtml_dotted_2.text_last = '{ixterm} '
-xhtml_dotted_2.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}] </a>'
-xhtml_dotted_3 = Estyle()
-xhtml_dotted_3.text_internal = '{ixterm}.'
-xhtml_dotted_3.link_last = '<a href="#ix{ixtgt}">{ixterm}</a> '
-xhtml_dotted_3.text_last = '{ixterm} '
-xhtml_dotted_3.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}]</a>'
-xhtml_dotted = Style()
-xhtml_dotted.levels = [ xhtml_dotted_1, xhtml_dotted_2, xhtml_dotted_3 ]
-xhtml_dotted.entry_start = '<p>'
-xhtml_dotted.entry_end = '</p>\n'
-dotted_styles = { 'xhtml11' : xhtml_dotted }
+styles_config = """
+styles.simple-dotted.xhtml11.levels.1.text_internal = {ixterm}.
+styles.simple-dotted.xhtml11.levels.1.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
+styles.simple-dotted.xhtml11.levels.1.text_last = {ixterm}{sp}
+styles.simple-dotted.xhtml11.levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
+styles.simple-dotted.xhtml11.levels.2.text_internal = {ixterm}.
+styles.simple-dotted.xhtml11.levels.2.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
+styles.simple-dotted.xhtml11.levels.2.text_last = {ixterm}{sp}
+styles.simple-dotted.xhtml11.levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
+styles.simple-dotted.xhtml11.levels.3.text_internal = {ixterm}.
+styles.simple-dotted.xhtml11.levels.3.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
+styles.simple-dotted.xhtml11.levels.3.text_last = {ixterm}{sp}
+styles.simple-dotted.xhtml11.levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>
+styles.simple-dotted.xhtml11.entry_start = <p>
+styles.simple-dotted.xhtml11.entry_end = </p>{nl}
+styles.simple-grouped.xhtml11.levels.1.text_internal = 
+styles.simple-grouped.xhtml11.levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
+styles.simple-grouped.xhtml11.levels.1.text_last = <p>{ixterm}{sp}
+styles.simple-grouped.xhtml11.levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+styles.simple-grouped.xhtml11.levels.2.text_internal = 
+styles.simple-grouped.xhtml11.levels.2.link_last = \
+    <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
+styles.simple-grouped.xhtml11.levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
+styles.simple-grouped.xhtml11.levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+styles.simple-grouped.xhtml11.levels.3.text_internal = 
+styles.simple-grouped.xhtml11.levels.3.link_last = \
+    <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
+styles.simple-grouped.xhtml11.levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
+styles.simple-grouped.xhtml11.levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+styles.simple-grouped.xhtml11.entry_end = </p>{nl}
+styles.simple-grouped.xhtml11.complete = y
+"""
 
-xhtml_grouped_1 = Estyle()
-xhtml_grouped_1.text_internal = ''
-xhtml_grouped_1.link_last = '<p><a href="#ix{ixtgt}">[{ixterm}]</a>'
-xhtml_grouped_1.text_last = '<p>{ixterm} '
-xhtml_grouped_1.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}] </a>'
-xhtml_grouped_2 = Estyle()
-xhtml_grouped_2.text_internal = ''
-xhtml_grouped_2.link_last = \
-    '<p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>'
-xhtml_grouped_2.text_last = '<p style="text-indent:2em;">{ixterm} '
-xhtml_grouped_2.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}] </a>'
-xhtml_grouped_3 = Estyle()
-xhtml_grouped_3.text_internal = ''
-xhtml_grouped_3.link_last = \
-    '<p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>'
-xhtml_grouped_3.text_last = '<p style="text-indent:4em;">{ixterm} '
-xhtml_grouped_3.multi_target = '<a href="#ix{ixtgt}">[{tgt_text}]</a>'
-xhtml_grouped = Style()
-xhtml_grouped.levels = [ xhtml_grouped_1, xhtml_grouped_2, xhtml_grouped_3 ]
-xhtml_grouped.entry_end = '</p>\n'
-xhtml_grouped.complete = 'y'
-grouped_styles = { 'xhtml11' : xhtml_grouped }
+styles = {}
 
-styles = { 'dotted' : dotted_styles, 'simple-grouped' : grouped_styles }
-
-default_style = 'dotted'
+default_style = 'simple-dotted'
 
 inds = {}
 
@@ -216,6 +232,7 @@ def attr_tuple(attlist):
 # print warning if key not found and leave in output
 # accepts a list of mapping objects for subs values searched left to right
 # kwargs for subs values, searched before any dicts
+# attributes global searched last
 fmt = string.Formatter()
 def subout(o, sstr, *dicts, **kwargs):
     bits = fmt.parse(sstr)
@@ -232,8 +249,11 @@ def subout(o, sstr, *dicts, **kwargs):
                     o.write(s)
                     break
             else:
-                print "Warning: keyword", bit[1], "not found, left in output"
-                o.write('{'+bit[1]+'}')
+                s = attributes.get(bit[1])
+                if s is not None: o.write(s)
+                else:
+                    print "Warning: attribute", bit[1], "not found, left in output"
+                    o.write('{'+bit[1]+'}')
 
 # output an uncolumnated index
 def uncoledout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
@@ -278,7 +298,7 @@ def uncoledout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
 ix_re = re.compile(r'<!-- ix (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
 ixhere_re = re.compile(r'<!-- ixhere (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
 
-def pass1(args):
+def pass1():
     if args.verbose > 1 : print "Pass 1"
     ic = 0
     with open(args.infile, 'r') as f:
@@ -297,7 +317,7 @@ def pass1(args):
     if args.verbose > 0 : print 'Pass 1 found', ic, 'ix entries'
 
 levels_re = re.compile(r'(\d)*-?(\d)*')
-def pass2(args):
+def pass2():
     if args.verbose > 1 : print "Pass 2"
     ic = 0; hc = 0
     with open(args.infile, 'r') as f, open(args.outfile,'w') as o:
@@ -353,6 +373,7 @@ def pass2(args):
     if args.verbose > 0: print 'Pass 2 found', ic, 'ix entries', hc, 'ixhere entries'
 
 def main():
+    global args
     p = argparse.ArgumentParser(description='Flexible index generator')
     p.add_argument('infile', help='Input File')
     p.add_argument('outfile', help='Output File')
@@ -362,10 +383,27 @@ def main():
     p.add_argument('--version', action='version', version='flexndex.0.1alpha')
     args = p.parse_args()
     args.backend = backend_aliases.get(args.backend, args.backend)
-    #TODO load configs
-    pass1(args)
+    conf_settings = Settings()
+    # TODO attributes anchors and default style from config
+    with closing(cStringIO.StringIO(styles_config)) as fo:
+        conf_settings.parse(fo)
+    if args.config:
+        for f in args.config:
+            with open(f,'r') as fo:
+                conf_settings.parse(fo)
+    if args.verbose >2: conf_settings.debug_print()
+    sts = conf_settings.get(('styles',))
+    for s in sts.keys():
+        if args.verbose > 1: print "Got style", s,
+        st = sts.get((s,))
+        for b in st.keys():
+            if args.verbose >1: print "backend", b,
+            if s not in styles: styles[s] = {}
+            styles[s][b] = Style(st.get((b,)))
+        if args.verbose > 1: print
+    pass1()
 #    print inds
-    pass2(args)
+    pass2()
     return 0
 
 if __name__ == '__main__':
