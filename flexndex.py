@@ -177,36 +177,37 @@ anchors = { 'xhtml11' : '<a id="ix{ixtgt}"></a>' ,
           'docbook45' : '<anchor id="ix{ixtgt}"/>' }
 
 styles_config = """
-styles.simple-dotted.xhtml11.levels.1.text_internal = {ixterm}.
-styles.simple-dotted.xhtml11.levels.1.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
-styles.simple-dotted.xhtml11.levels.1.text_last = {ixterm}{sp}
-styles.simple-dotted.xhtml11.levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
-styles.simple-dotted.xhtml11.levels.2.text_internal = {ixterm}.
-styles.simple-dotted.xhtml11.levels.2.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
-styles.simple-dotted.xhtml11.levels.2.text_last = {ixterm}{sp}
-styles.simple-dotted.xhtml11.levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
-styles.simple-dotted.xhtml11.levels.3.text_internal = {ixterm}.
-styles.simple-dotted.xhtml11.levels.3.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
-styles.simple-dotted.xhtml11.levels.3.text_last = {ixterm}{sp}
-styles.simple-dotted.xhtml11.levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>
-styles.simple-dotted.xhtml11.entry_start = <p>
-styles.simple-dotted.xhtml11.entry_end = </p>{nl}
-styles.simple-grouped.xhtml11.levels.1.text_internal = 
-styles.simple-grouped.xhtml11.levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
-styles.simple-grouped.xhtml11.levels.1.text_last = <p>{ixterm}{sp}
-styles.simple-grouped.xhtml11.levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
-styles.simple-grouped.xhtml11.levels.2.text_internal = 
-styles.simple-grouped.xhtml11.levels.2.link_last = \
-    <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
-styles.simple-grouped.xhtml11.levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
-styles.simple-grouped.xhtml11.levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
-styles.simple-grouped.xhtml11.levels.3.text_internal = 
-styles.simple-grouped.xhtml11.levels.3.link_last = \
-    <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
-styles.simple-grouped.xhtml11.levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
-styles.simple-grouped.xhtml11.levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
-styles.simple-grouped.xhtml11.entry_end = </p>{nl}
-styles.simple-grouped.xhtml11.complete = y
+[styles.simple-dotted.xhtml11]
+levels.1.text_internal = {ixterm}.
+levels.1.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
+levels.1.text_last = {ixterm}{sp}
+levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
+levels.2.text_internal = {ixterm}.
+levels.2.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
+levels.2.text_last = {ixterm}{sp}
+levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
+levels.3.text_internal = {ixterm}.
+levels.3.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
+levels.3.text_last = {ixterm}{sp}
+levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>
+entry_start = <p>
+entry_end = </p>{nl}
+
+[styles.simple-grouped.xhtml11]
+levels.1.text_internal = 
+levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.1.text_last = <p>{ixterm}{sp}
+levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+levels.2.text_internal = 
+levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
+levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+levels.3.text_internal = 
+levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
+levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
+levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+entry_end = </p>{nl}
+complete = y
 """
 
 styles = {}
@@ -218,8 +219,8 @@ inds = {}
 # parse attrlist into a pair containing:
 # tuple of positional attrs and dict of keyword attrs
 # comma and equals can be included by including twice
-att_split_re = re.compile(r'[^,],')
-att_key_split_re = re.compile(r'[^=]=')
+att_split_re = re.compile(r',(?!,)')
+att_key_split_re = re.compile(r'=(?!=)')
 att_replace_doubles_re = re.compile(r'([=,])\1')
 def attr_tuple(attlist):
     atts = [ x.strip() for x in att_split_re.split(attlist) ]
