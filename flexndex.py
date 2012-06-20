@@ -217,15 +217,19 @@ inds = {}
 
 # parse attrlist into a pair containing:
 # tuple of positional attrs and dict of keyword attrs
+# comma and equals can be included by including twice
+att_split_re = re.compile(r'[^,],')
+att_key_split_re = re.compile(r'[^=]=')
+att_replace_doubles_re = re.compile(r'([=,])\1')
 def attr_tuple(attlist):
-    atts = [ x.strip() for x in attlist.split(',') ]
+    atts = [ x.strip() for x in att_split_re.split(attlist) ]
     if len(atts) == 1 and atts[0] == '':
         return (tuple(), {})
     patts = []; katts = {}
     for a in atts:
-        s = a.split('=',1)
+        s = [ att_replace_doubles_re.sub(r'\1', x) for x in att_key_split_re.split(a,1) ]
         if len(s) > 1: katts[s[0]] = s[1]
-        else: patts.append( a )
+        else: patts.append( s[0] )
     return (tuple(patts), katts)
 
 # output to file o after substituting attributes in strings

@@ -814,10 +814,7 @@ Asciidoc tool.</p></div>
 <div class="sect2">
 <h3 id="_index_target_definitions">Index Target Definitions</h3>
 <div class="paragraph"><p>The format of the comments specifying index terms is:</p></div>
-<div class="listingblock">
-<div class="content">
-<pre><tt>&lt;!-- ix indexname &lt;attribute_list&gt; --&gt;</tt></pre>
-</div></div>
+<div class=listingblock><div class=content><pre><code>&lt;!-- ix indexname &lt;attribute_list&gt; --&gt;</code></pre></div></div>
 <div class="paragraph"><p>Note that the spaces shown above are part of the format, use only one
 space.</p></div>
 <div class="paragraph"><p>The <tt>indexname</tt> is the name of the index this target is part of.</p></div>
@@ -834,6 +831,7 @@ named attributes in name=value form.
 </p>
 </li>
 </ul></div>
+<div class="paragraph"><p>To include comma or equals in an attribute value or name include them twice.</p></div>
 <div class="paragraph"><p>Flexndex does not restrict how many levels an index has.</p></div>
 <div class="paragraph"><p>Named attributes other than the predefined ones will be available for
 substitution into the output markup, either in the anchor or the entry
@@ -853,10 +851,7 @@ the text to use in the index entry for links to this target.
 <div class="sect2">
 <h3 id="_index_inclusion_request">Index Inclusion Request</h3>
 <div class="paragraph"><p>The format of the comments requesting inclusion of an index is:</p></div>
-<div class="listingblock">
-<div class="content">
-<pre><tt>&lt;!-- ixhere indexname &lt;attribute_list&gt; --&gt;</tt></pre>
-</div></div>
+<div class=listingblock><div class=content><pre><code>&lt;!-- ixhere indexname &lt;attribute_list&gt; --&gt;</code></pre></div></div>
 <div class="paragraph"><p>Note that the spaces shown above are part of the format, use only one
 space.</p></div>
 <div class="paragraph"><p>The <tt>indexname</tt> is the name of the index to put here.</p></div>
@@ -1139,10 +1134,7 @@ Caution, level_no is text, it is not a number.  Convention is to use
 <div class="sect1">
 <h2 id="_command_reference">Command Reference</h2>
 <div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre><tt>flexndex [options] infile outfile</tt></pre>
-</div></div>
+<div class=listingblock><div class=content><pre><code>flexndex [options] infile outfile</code></pre></div></div>
 <div class="paragraph"><p>Note that as the outfile is the same type as the infile there is no
 obvious way of generating an output filename automatically, so both
 infile and outfile are required.</p></div>
@@ -1199,11 +1191,8 @@ dotted
 <p>
 a simple (no CSS) built-in non-grouped style that shows each entry as:
 </p>
-<div class="listingblock">
-<div class="content">
-<pre><tt>term1.term2.term3
-term1.term2.term4 [target1] [target2]</tt></pre>
-</div></div>
+<div class=listingblock><div class=content><pre><code>term1.term2.term3
+term1.term2.term4 [target1] [target2]</code></pre></div></div>
 <div class="paragraph"><p>where the term3 has only one target and term4 has multiple targets each
 shown in []. The text term3, target1 and target2 are links.</p></div>
 </dd>
@@ -1215,13 +1204,10 @@ simple-grouped
 a simple (no CSS) built-in grouped style shows as a traditional
 grouped index as:
 </p>
-<div class="listingblock">
-<div class="content">
-<pre><tt>term1
+<div class=listingblock><div class=content><pre><code>term1
     term2
         term3
-        term4 [target1] [target2]</tt></pre>
-</div></div>
+        term4 [target1] [target2]</code></pre></div></div>
 <div class="paragraph"><p>where term3 target1 and target2 are links.</p></div>
 </dd>
 </dl></div>
@@ -1234,17 +1220,12 @@ grouped index as:
 xhtml11, docbook and ODT backends.</p></div>
 <div class="paragraph"><p>The easiest way of inserting Flexndex comments is to define two
 macros:</p></div>
-<div class="listingblock">
-<div class="content">
-<pre><tt>ix:indexname[attribute_list]
-ishere::indexname[attrbiute_list]</tt></pre>
-</div></div>
+<div class=listingblock><div class=content><pre><code>ix:indexname[attribute_list]
+ishere::indexname[attrbiute_list]</code></pre></div></div>
 <div class="paragraph"><p>to generate the index target comments and index comments respectively.
 Note the ixhere macro is a block macro and ix is inline.</p></div>
 <div class="paragraph"><p>Put the following in an appropriate asciidoc.conf file:</p></div>
-<div class="listingblock">
-<div class="content">
-<pre><tt>[macros]
+<div class=listingblock><div class=content><pre><code>[macros]
 (?su)(?&lt;!\w)[\\]?(?P&lt;name&gt;ix):(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]:
 (?u)(?&lt;!\w)[\\]?(?P&lt;name&gt;ixhere)::(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]: #
 
@@ -1252,17 +1233,13 @@ Note the ixhere macro is a block macro and ix is inline.</p></div>
 &lt;!-- ix {target} &lt;{attrlist}&gt; --&gt;
 
 [ixhere-blockmacro]
-&lt;!-- ixhere {target} &lt;{attrlist=}&gt; --&gt;</tt></pre>
-</div></div>
+&lt;!-- ixhere {target} &lt;{attrlist=}&gt; --&gt;</code></pre></div></div>
 <div class="paragraph"><p>or if using a release after 8.6.7 or hg newer than release
 c715f6c96481 (June 10 2012) then you can place:</p></div>
-<div class="listingblock">
-<div class="content">
-<pre><tt>:macros.(?su)(?&lt;!\w)[\\]?(?P&lt;name&gt;ix):(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]:
+<div class=listingblock><div class=content><pre><code>:macros.(?su)(?&lt;!\w)[\\]?(?P&lt;name&gt;ix):(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]:
 :macros.(?u)(?&lt;!\w)[\\]?(?P&lt;name&gt;ixhere)::(?P&lt;target&gt;\S*?)\[(?P&lt;attrlist&gt;.*?)\]: #
 :ix-inlinemacro.: &lt;!-- ix {target} &lt;{attrlist}&gt; --&gt;
-:ixhere-blockmacro.: &lt;!-- ixhere {target} &lt;{attrlist=}&gt; --&gt;</tt></pre>
-</div></div>
+:ixhere-blockmacro.: &lt;!-- ixhere {target} &lt;{attrlist=}&gt; --&gt;</code></pre></div></div>
 <div class="paragraph"><p>in the header of the document and avoid the need for a separate
 asciidoc.conf.</p></div>
 <div class="paragraph"><p>Run asciidoc to create the .html or .xml file then run flexndex.  The
@@ -1276,11 +1253,6 @@ xml can then be processed further by a2x as normal by specifying the
 <div class="sect2">
 <h3 id="_probable">Probable</h3>
 <div class="ulist"><ul>
-<li>
-<p>
-switch built-in styles to config file format as a string
-</p>
-</li>
 <li>
 <p>
 docbook built-ins
@@ -1319,7 +1291,7 @@ other backends as standard
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-06-17 20:54:28 EST
+Last updated 2012-06-20 17:13:05 EST
 </div>
 </div>
 </body>

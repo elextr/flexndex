@@ -4,7 +4,8 @@ Lex Trotman <elextr@gmail.com>
 v0.1alpha
 :max-width: 55em
 
-:listingblock.: <pre><code>|</code></pre>
+//github rendering fix
+:listingblock.: <div class=listingblock><div class=content><pre><code>|</code></pre></div></div>
 
 Introduction
 ------------
@@ -68,6 +69,8 @@ The +attribute_list+ is a comma separated list of:
 
 - index terms in order of primary, secondary, tertiary etc, followed by
 - named attributes in name=value form.
+
+To include comma or equals in an attribute value or name include them twice.
 
 Flexndex does not restrict how many levels an index has.
 
@@ -347,7 +350,6 @@ Futures
 Probable
 ~~~~~~~~
 
-- switch built-in styles to config file format as a string
 - docbook built-ins
 - multi-column indices
 - CSS stylable standard styles
