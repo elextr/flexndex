@@ -3,6 +3,7 @@ Flexndex - a document index generator
 Lex Trotman <elextr@gmail.com>
 v0.1alpha
 :max-width: 55em
+:numbered:
 
 //github rendering fix
 :listingblock.: <div class=listingblock><div class=content><pre><code>|</code></pre></div></div>
@@ -48,6 +49,72 @@ in the document, but most document tools allow their inclusion, see
 <<uwa, Using with Asciidoc>> for an example of configuring the
 Asciidoc tool.
 
+Index Generation Process
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The index content is created by the following steps:
+
+* selection of entries to include,
+* sorting of entries,
+* iteration through the entries performing:
+** generation of missing entries,
+** filtering of entries, and
+** substitution of terms and attributes of the entry into output 
+markup templates from the configuration settings.
+
+Selection of Entries
+^^^^^^^^^^^^^^^^^^^^
+
+Selection is by the name of the index and a set of terms that must be 
+a prefix of the terms in the entries.  Specifying no terms means no 
+selection, all entries for the index are shown.
+
+Sorting of entries
+^^^^^^^^^^^^^^^^^^
+
+The selected entries are sorted by each level in order comparing the 
+terms by Unicode code point.
+
+Iteration
+^^^^^^^^^
+
+The default iteration of entries is simply in sorted order start to
+finish, but options outlined in <<iir, Index Inclusion Request>> allow
+iteration orders suitable for multiple column output.
+
+For each entry the terms in the entry are iterated in increasing level 
+order.
+
+Generation
+++++++++++
+
+Only the leaf nodes of the hierarchy of terms are specified by the 
+*ix* comment.  However some display styles require the internal levels 
+for display.  Missing levels are generated during the iteration process.
+
+See <<confset, Configuration Settings>> for settings controlling 
+generation.
+
+Filtering
++++++++++
+
+In some use-cases not all entries need to be displayed, but they are
+needed for generation of missing entries.  The display filters specify 
+which entries to display.
+
+Filtering can also limit which terms within entries are displayed.
+
+See <<iir, Index Inclusion Request>> for filter control attributes.
+
+Substitution
+++++++++++++
+
+The substitution templates are chosen using the iteration components 
+(eg level).  See <<confset, Configuration Settings>> for the 
+components supported.
+
+The attributes are substituted as defined in <<Substitutions>>.
+
 Comment Format
 --------------
 
@@ -82,6 +149,7 @@ The predefined named attributes are:
 
 text:: the text to use in the index entry for links to this target.
 
+[[iir]]
 Index Inclusion Request
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -94,25 +162,39 @@ The format of the comments requesting inclusion of an index is:
 Note that the spaces shown above are part of the format, use only one
 space.
 
-The +indexname+ is the name of the index to put here.
+The +indexname+ selects name of the index to put here.
 
 The attribute list has the same format as the index term definition.
-Any initial index terms request that the index placed here be
-restricted to only entries that are prefixed by the specified terms.
+Any initial index terms select only entries that are prefixed by the
+specified terms.
+
+To include comma or equals in an attribute value or name include them twice.
 
 Named attributes other than the predefined ones will be available for
 substitution into the output markup of the index.
 
 The predefined named attributes are:
 
-levels:: limit the output to these levels.
+cols:: specify collimation parameters, format is nnidbbb where:
+
+nn::: is the number of columns (decimal number)
+
+id::: is the iteration and direction control, l = linear or i = 
+interlaced and r = by row or c = by column, not all combinations work 
+usefully.
+
+bbb::: is the column break control, default (no bbb) = make columns as
+close to same length as possible, lnn = break at level nn (or less)
+
+levels:: filter the output to entries whose length falls in the range 
+specified and limit display to these levels.
 +
 n1-n2::: from level n1 to level n2 inclusive
 n1-::: from level n1 up inclusive
 -n1, n1::: up to level n1 inclusive
 +
 where n1 and n2 are decimal numbers counting from one.  Missing levels
-attribute means all.
+attribute means all.  Terms for levels below n1 are not displayed.
 
 style:: name of the style of index to output, see <<pis, Predefined Index
 Styles>>
@@ -139,8 +221,9 @@ a starting position in the hierarchy for all following keys until
 another square bracket line.  The line consists of a dot separated
 list of keys for each level followed by a close square bracket.
 
-Settings Understood by Flexndex
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[confset]]
+Configuration Settings
+~~~~~~~~~~~~~~~~~~~~~~
 
 In the following table items shown like *<this>* are placeholders to
 be filled by the user with the appropriate values as explained after
@@ -149,7 +232,7 @@ the table.  All other characters in the setting are expected verbatim.
 The substitutions column identifies which built-in attributes are
 substituted, see the following table.
 
-[cols="2,1,1,2"]
+[cols="1,1,1,3"]
 |====
 | Setting | Optional, default | Substitutions | Use
 | default_style | yes, 'simple-dotted' | nothing
@@ -158,71 +241,136 @@ substituted, see the following table.
 | attribute.*<name>* | yes, nothing | nothing
 | Value to substitute for occurrances of {name}
 
-| anchors.*<backend>* | yes, nothing | std target
+| anchors.*<backend>* | yes, nothing | std tgt target
 | Markup to output after the ix comment, usually defines a link anchor
 
-| styles.*<style_name>*.*<backend>*.complete | yes, "no" | nothing
+4+| [styles.*<style_name>*.*<backend>*]
+| complete | yes, "no" | nothing
 | Set to start with "y" to generate complete term hierarchy, ie if a,b,c
 were the first terms then a and a,b would also be generated
 
-| styles.*<style_name>*.*<backend>*.prefix | yes, nothing | std here
+| prefix | yes, nothing | std here
 | Markup to output before the index
 
-| styles.*<style_name>*.*<backend>*.postfix | yes, nothing | std here
+| postfix | yes, nothing | std here
 | Markup to output after the index
 
-| styles.*<style_name>*.*<backend>*.empty_message | yes, "Empty Index | std here
+| empty_message | yes, "Empty Index | std here
 | Markup to output if the index has no contents, prefix and postfix not
 output
 
-| styles.*<style_name>*.*<backend>*.entry_start | yes, nothing | std here
-| Markup to output before each entry
+| entry_start | yes, nothing | std here
+| Markup to output before each entry, or row if collimated by rows
 
-| styles.*<style_name>*.*<backend>*.entry_end | yes, nothing | std here
-| Markup to output after each entry
+| entry_end | yes, nothing | std here
+| Markup to output after each entry, or row if collimated by rows
 
-| styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_internal
-| yes, nothing | std here ixterm
+| col_start.*<col_no>* | yes, nothing | std here pref
+| Markup to output before specified column if output by column
+
+| col_end.*<col_no>* | yes, nothing | std here pref
+| Markup to output after specified column if output by column
+
+4+| [styles.*<style_name>*.*<backend>*.levels.*<level_no>*]
+| text_internal | yes, nothing | std here term
 | The markup to output if this term is not the last one for the target
 entry
 
-| styles.*<style_name>*.*<backend>*.levels.*<level_no>*.text_last
-| yes, nothing | std here ixterm
+| text_last | yes, nothing | std here term
 | The markup to output for the last term if it cannot to be a link, ie
 it has more than one target
 
-| styles.*<style_name>*.*<backend>*.levels.*<level_no>*.link_last
-| yes, nothing | std here ixterm target
+| link_last | yes, nothing | std here term tgt target
 | The markup to output for the last term if it can be a link
 
-| styles.*<style_name>*.*<backend>*.levels.*<level_no>*.multi_target
-| yes, nothing | std here ixterm target
+| multi_target | yes, nothing | std here term tgt target
 | The markup to output for each of multiple targets
 |====
 
-Substitutions are not recursive, ie {attr} in an attribute value is not 
-substituted when the attribute is.
-
-The substitutions column in the above table means:
-
 [cols="1,4", width="50%"]
 |====
-| std | Built-in and configured attributes
-| here | Keyword attributes from the ixhere comment
-| ixterm | The term value for the current level
-| target
-| The attributes from the ix comment and \{ixtgt} and \{tgt_text}^[1]^
+| std    | Built-in and configured attributes
+| here   | Keyword attributes from the ixhere comment
+| term   | Computed attributes in the term group
+| pref   | Computed attributes in the pref group
+| tgt    | Computed attributes in the tgt group
+| target | The attributes from the ix comment
 |====
 
-Notes:
+The meanings of the placeholders are:
 
-[1] \{ixtgt} is a unique numeric piece of text identified with the
-target, use it to make link targets, \{tgt_text} is either the 'text'
-attribute from the ix comment, if it exists, otherwise the last term.
+backend:: is the name of the backend that the setting applies to
+
+col_no:: is the settings to use for multi-column output. 
+Caution, col_no is text, it is not a number.  Convention is to use
+"1", "2" etc as it just defines a sort order, beware "10" sorts before
+"2".
+
+level_no:: is the level of the term that this setting applies to.
+Caution, level_no is text, it is not a number.  Convention is to use
+"1", "2" etc as it just defines a sort order, beware "10" sorts before
+"2".
+
+style_name:: is the name of a style being defined
+
+Substitutions
+^^^^^^^^^^^^^
+
+Attributes are substituted into output text by enclosing the attribute 
+name in {}.
+
+Substitutions are not recursive, ie \{attr} in an attribute value is not 
+substituted except in conditional substitutions.
+
+Conditional Substitutions
++++++++++++++++++++++++++
+
+Conditional substitutions are performed before other attributes so 
+values conditionally substituted may contain other attributes.
+
+Inside values the characters question mark (?), colon (:) and close 
+brace (}) must occur twice to distinguish them from the meta 
+characters.
+
+[cols="1,2"]
+|====
+| Substitute | Condition to substitute
+| \{name?value} | name is defined
+| \{name?!value} | name is not defined
+| \{name=value1?value2:value3} | name = value1 then value2 else value 3
+| \{name#value1?value2:value3} | name not = value1 then value2 else value3
+|====
+
+The :value3 may be omitted if value3 is nothing.
+
+Computed attributes
++++++++++++++++++++
+
+The following attributes are computed in the context of the 
+substitution.
+
+[cols="1,1,3"]
+|====
+| Attribute | Group | Value
+| ixterm | term | the current level term
+| ixpref | pref | common prefix with previous entry
+| ixtgt | tgt
+| is a unique numeric piece of text identified with the
+target, use it to make link targets
+
+| ixtext | tgt
+| is either the 'text' attribute from the ix comment, if it exists,
+otherwise the last term.
+
+|====
+
+Built-in Substitutions
+++++++++++++++++++++++
 
 The following attributes are built-in, but can be overridden by config 
 files:
 
+[cols="1,1,4"]
 |====
 | Name | Value | Use
 | sp | ' ' 
@@ -231,17 +379,6 @@ stripped off
 
 | nl | '\n' | Newline
 |====
-
-The meanings of the placeholders are:
-
-style_name:: is the name of a style being defined
-
-backend:: is the name of the backend that the setting applies to
-
-level_no:: is the level of the term that this setting applies to.
-Caution, level_no is text, it is not a number.  Convention is to use
-"1", "2" etc as it just defines a sort order, beware "10" sorts before
-"2".
 
 Command Reference
 -----------------
@@ -350,6 +487,7 @@ Futures
 Probable
 ~~~~~~~~
 
+- separate levels filter and levels display specification
 - docbook built-ins
 - multi-column indices
 - CSS stylable standard styles

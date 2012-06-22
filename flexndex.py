@@ -111,12 +111,12 @@ class Settings:
             else: l = k
             self.d[k].debug_print(l)
 
-# return count of shared prefix of two iterables
+# return shared prefix of two iterables
 def shared_prefix(i1, i2):
-    pref = 0
+    pref = []
     for a,b in zip(i1, i2):
         if a!=b: break
-        pref += 1
+        pref.append(a)
     return pref
 
 # Layout of entry style in class Estyle
@@ -133,7 +133,7 @@ def shared_prefix(i1, i2):
 # in link_last or multi_target only
 #
 # {ixtgt} - index term target number
-# {tgt_text} - 'text' defined by target attrlist, or term if no text
+# {ixtext} - 'text' defined by target attrlist, or term if no text
 # {xxxx} - where xxxx is anything else defined in the target attrlist
 
 class Estyle:
@@ -164,10 +164,16 @@ class Style:
         self.empty_message = settings.get('empty_message', 'Empty Index')
         self.levels = []
         l = settings.get(('levels',), None)
-        print 'levels', l
         if l is not None:
-            for i in l.sorted_keys():
-                self.levels.append( Estyle( l.get((i,)) ) )
+			self.levels = [ Estyle( l.get((i,)) ) for i in l.sorted_keys() ]
+        #self.cols = []
+        #c = settings.get(('cols',), None)
+        #if c is not None:
+			#for j in c.sorted_keys():
+		        #l = c.get((j, 'levels',), None)
+		        #if l is not None:
+					#s = [ Estyle( l.get((i,)) ) for i in l.sorted_keys() ]
+					#self.cols.append(s)
 
 # Built-in style definitions
 
@@ -181,15 +187,15 @@ styles_config = """
 levels.1.text_internal = {ixterm}.
 levels.1.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
 levels.1.text_last = {ixterm}{sp}
-levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
+levels.1.multi_target = <a href="#ix{ixtgt}">[{ixtext}] </a>
 levels.2.text_internal = {ixterm}.
 levels.2.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
 levels.2.text_last = {ixterm}{sp}
-levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}] </a>
+levels.2.multi_target = <a href="#ix{ixtgt}">[{ixtext}] </a>
 levels.3.text_internal = {ixterm}.
 levels.3.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
 levels.3.text_last = {ixterm}{sp}
-levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>
+levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>
 entry_start = <p>
 entry_end = </p>{nl}
 
@@ -197,17 +203,42 @@ entry_end = </p>{nl}
 levels.1.text_internal = 
 levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
 levels.1.text_last = <p>{ixterm}{sp}
-levels.1.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+levels.1.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
 levels.2.text_internal = 
 levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
 levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
-levels.2.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+levels.2.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
 levels.3.text_internal = 
 levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
 levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
-levels.3.multi_target = <a href="#ix{ixtgt}">[{tgt_text}]</a>{sp}
+levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
 entry_end = </p>{nl}
 complete = y
+
+[styles.column_grouped.xhtml11]
+levels.1.text_internal = 
+levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.1.text_last = <p>{ixterm}{sp}
+levels.1.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.2.text_internal = 
+levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
+levels.2.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.3.text_internal = 
+levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
+levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
+levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+entry_end = </p>{nl}
+prefix=<table>
+postfix=</table>
+col_start.1 = <tr><td>
+col_end.1 = </td></tr>
+col_start.2 = <tr><td><p>{ixprev} {contd}</p>
+col_end.2 = </td></tr>
+col_start.3 = <tr><td><p>{ixprev} {contd}</p>
+col_end.3 = </td></tr>
+complete = y
+
 """
 
 styles = {}
@@ -220,15 +251,15 @@ inds = {}
 # tuple of positional attrs and dict of keyword attrs
 # comma and equals can be included by including twice
 att_split_re = re.compile(r',(?!,)')
-att_key_split_re = re.compile(r'=(?!=)')
-att_replace_doubles_re = re.compile(r'([=,])\1')
+att_key_re = re.compile(r'=(?!=)')
+att_rep_re = re.compile(r'([=,])\1')
 def attr_tuple(attlist):
     atts = [ x.strip() for x in att_split_re.split(attlist) ]
     if len(atts) == 1 and atts[0] == '':
         return (tuple(), {})
     patts = []; katts = {}
     for a in atts:
-        s = [ att_replace_doubles_re.sub(r'\1', x) for x in att_key_split_re.split(a,1) ]
+        s = [ att_rep_re.sub(r'\1', x) for x in att_key_re.split(a,1) ]
         if len(s) > 1: katts[s[0]] = s[1]
         else: patts.append( s[0] )
     return (tuple(patts), katts)
@@ -260,14 +291,18 @@ def subout(o, sstr, *dicts, **kwargs):
                     print "Warning: attribute", bit[1], "not found, left in output"
                     o.write('{'+bit[1]+'}')
 
-# output an uncolumnated index
-def uncoledout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
+# output an index
+def indexout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
     subout(o, styleob.prefix, hereattrs )
     entry = []
+    
+    #TODO by column, by row, divide into cols, re-arrange and order like the doc?
+    
     for tentry in k :
-        pref_len = shared_prefix(entry, tentry)
+        pref_len = len(shared_prefix(entry, tentry))
         done = False
         while not done:
+			prev = entry
             if comp and pref_len+1 < len(tentry):
                 tgt = {}
                 entry = entry[:pref_len]; entry.append(tentry[pref_len])
@@ -287,14 +322,14 @@ def uncoledout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
                     rno, tgt_attrs = tgt.items()[0]
                     txt = tgt_attrs.get('text', entry[-1])
                     subout(o, tstyle.link_last, tgt_attrs, hereattrs,
-                        ixterm=entry[-1], ixtgt=rno, tgt_text=txt)
+                        ixterm=entry[-1], ixtgt=rno, ixtext=txt)
                 else:
                     subout(o, tstyle.text_last, hereattrs, ixterm=entry[-1])
                 if lt > 1:
                     for t in tgt.items():
                         txt = t[1].get('text', entry[-1])
                         subout(o, tstyle.multi_target, t[1], hereattrs,
-                            ixterm = entry[-1], ixtgt=t[0], tgt_text=txt)
+                            ixterm = entry[-1], ixtgt=t[0], ixtext=txt)
                 subout(o, styleob.entry_end, hereattrs)
             else:
                 print "Warning, not enough style levels for target terms", entry
@@ -358,7 +393,7 @@ def pass2():
                         subout(o, styleob.empty_message, hereattrs)
                     else:
                         k.sort()
-                        uncoledout(o, k, styleob, hereattrs, tgts,
+                        indexout(o, k, styleob, hereattrs, tgts,
                                 styleob.complete.startswith('y'), minl, maxl)
                 else:
                     print "Warning: backend", args.backend,
@@ -372,7 +407,7 @@ def pass2():
                 o.write(line[upto:m.end()])
                 upto = m.end()
                 text = tgt_attrs.get('text', a[-1])
-                subout(o, anchors[args.backend], tgt_attrs, tgt_text=text, ixtgt=str(rno))
+                subout(o, anchors[args.backend], tgt_attrs, ixtext=text, ixtgt=str(rno))
                 rno += 1
             o.write( line[upto:] )
     if args.verbose > 0: print 'Pass 2 found', ic, 'ix entries', hc, 'ixhere entries'

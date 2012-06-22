@@ -738,7 +738,7 @@ asciidoc.install();
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_introduction">Introduction</h2>
+<h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Most documentation tools let you generate an index of terms in the
 document, but often it is useful to be able to generate indices for
@@ -750,7 +750,7 @@ eg xhtml, docbook or Open Document Format.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_terminology">Terminology</h2>
+<h2 id="_terminology">2. Terminology</h2>
 <div class="sectionbody">
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -792,7 +792,7 @@ the index
 </div>
 </div>
 <div class="sect1">
-<h2 id="_operation">Operation</h2>
+<h2 id="_operation">3. Operation</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Flexndex takes index target information encoded in XML comments,
 generates the link anchor at that position and records the specified
@@ -806,13 +806,94 @@ accomodated.</p></div>
 in the document, but most document tools allow their inclusion, see
 <a href="#uwa">Using with Asciidoc</a> for an example of configuring the
 Asciidoc tool.</p></div>
+<div class="sect2">
+<h3 id="_index_generation_process">3.1. Index Generation Process</h3>
+<div class="paragraph"><p>The index content is created by the following steps:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+selection of entries to include,
+</p>
+</li>
+<li>
+<p>
+sorting of entries,
+</p>
+</li>
+<li>
+<p>
+iteration through the entries performing:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+generation of missing entries,
+</p>
+</li>
+<li>
+<p>
+filtering of entries, and
+</p>
+</li>
+<li>
+<p>
+substitution of terms and attributes of the entry into output
+markup templates from the configuration settings.
+</p>
+</li>
+</ul></div>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_selection_of_entries">3.1.1. Selection of Entries</h4>
+<div class="paragraph"><p>Selection is by the name of the index and a set of terms that must be
+a prefix of the terms in the entries.  Specifying no terms means no
+selection, all entries for the index are shown.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_sorting_of_entries">3.1.2. Sorting of entries</h4>
+<div class="paragraph"><p>The selected entries are sorted by each level in order comparing the
+terms by Unicode code point.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_iteration">3.1.3. Iteration</h4>
+<div class="paragraph"><p>The default iteration of entries is simply in sorted order start to
+finish, but options outlined in <a href="#iir">Index Inclusion Request</a> allow
+iteration orders suitable for multiple column output.</p></div>
+<div class="paragraph"><p>For each entry the terms in the entry are iterated in increasing level
+order.</p></div>
+<div class="sect4">
+<h5 id="_generation">Generation</h5>
+<div class="paragraph"><p>Only the leaf nodes of the hierarchy of terms are specified by the
+<strong>ix</strong> comment.  However some display styles require the internal levels
+for display.  Missing levels are generated during the iteration process.</p></div>
+<div class="paragraph"><p>See <a href="#confset">Configuration Settings</a> for settings controlling
+generation.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_filtering">Filtering</h5>
+<div class="paragraph"><p>In some use-cases not all entries need to be displayed, but they are
+needed for generation of missing entries.  The display filters specify
+which entries to display.</p></div>
+<div class="paragraph"><p>Filtering can also limit which terms within entries are displayed.</p></div>
+<div class="paragraph"><p>See <a href="#iir">Index Inclusion Request</a> for filter control attributes.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_substitution">Substitution</h5>
+<div class="paragraph"><p>The substitution templates are chosen using the iteration components
+(eg level).  See <a href="#confset">Configuration Settings</a> for the
+components supported.</p></div>
+<div class="paragraph"><p>The attributes are substituted as defined in <a href="#Substitutions">[Substitutions]</a>.</p></div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_comment_format">Comment Format</h2>
+<h2 id="_comment_format">4. Comment Format</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_index_target_definitions">Index Target Definitions</h3>
+<h3 id="_index_target_definitions">4.1. Index Target Definitions</h3>
 <div class="paragraph"><p>The format of the comments specifying index terms is:</p></div>
 <div class=listingblock><div class=content><pre><code>&lt;!-- ix indexname &lt;attribute_list&gt; --&gt;</code></pre></div></div>
 <div class="paragraph"><p>Note that the spaces shown above are part of the format, use only one
@@ -849,25 +930,64 @@ the text to use in the index entry for links to this target.
 </dl></div>
 </div>
 <div class="sect2">
-<h3 id="_index_inclusion_request">Index Inclusion Request</h3>
+<h3 id="iir">4.2. Index Inclusion Request</h3>
 <div class="paragraph"><p>The format of the comments requesting inclusion of an index is:</p></div>
 <div class=listingblock><div class=content><pre><code>&lt;!-- ixhere indexname &lt;attribute_list&gt; --&gt;</code></pre></div></div>
 <div class="paragraph"><p>Note that the spaces shown above are part of the format, use only one
 space.</p></div>
-<div class="paragraph"><p>The <tt>indexname</tt> is the name of the index to put here.</p></div>
+<div class="paragraph"><p>The <tt>indexname</tt> selects name of the index to put here.</p></div>
 <div class="paragraph"><p>The attribute list has the same format as the index term definition.
-Any initial index terms request that the index placed here be
-restricted to only entries that are prefixed by the specified terms.</p></div>
+Any initial index terms select only entries that are prefixed by the
+specified terms.</p></div>
+<div class="paragraph"><p>To include comma or equals in an attribute value or name include them twice.</p></div>
 <div class="paragraph"><p>Named attributes other than the predefined ones will be available for
 substitution into the output markup of the index.</p></div>
 <div class="paragraph"><p>The predefined named attributes are:</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
+cols
+</dt>
+<dd>
+<p>
+specify collimation parameters, format is nnidbbb where:
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+nn
+</dt>
+<dd>
+<p>
+is the number of columns (decimal number)
+</p>
+</dd>
+<dt class="hdlist1">
+id
+</dt>
+<dd>
+<p>
+is the iteration and direction control, l = linear or i =
+interlaced and r = by row or c = by column, not all combinations work
+usefully.
+</p>
+</dd>
+<dt class="hdlist1">
+bbb
+</dt>
+<dd>
+<p>
+is the column break control, default (no bbb) = make columns as
+close to same length as possible, lnn = break at level nn (or less)
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
 levels
 </dt>
 <dd>
 <p>
-limit the output to these levels.
+filter the output to entries whose length falls in the range
+specified and limit display to these levels.
 </p>
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -894,7 +1014,7 @@ from level n1 up inclusive
 up to level n1 inclusive
 </p>
 <div class="paragraph"><p>where n1 and n2 are decimal numbers counting from one.  Missing levels
-attribute means all.</p></div>
+attribute means all.  Terms for levels below n1 are not displayed.</p></div>
 </dd>
 </dl></div>
 </dd>
@@ -911,10 +1031,10 @@ name of the style of index to output, see <a href="#pis">Predefined Index Styles
 </div>
 </div>
 <div class="sect1">
-<h2 id="_configuration">Configuration</h2>
+<h2 id="_configuration">5. Configuration</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_basic_configuration_file_format">Basic Configuration file format</h3>
+<h3 id="_basic_configuration_file_format">5.1. Basic Configuration file format</h3>
 <div class="paragraph"><p>The basic setting file format is a list of key=value entries, each
 starting on a new line.</p></div>
 <div class="paragraph"><p>Keys are a dot separated list of keys for each level in the hierarchy.</p></div>
@@ -928,7 +1048,7 @@ another square bracket line.  The line consists of a dot separated
 list of keys for each level followed by a close square bracket.</p></div>
 </div>
 <div class="sect2">
-<h3 id="_settings_understood_by_flexndex">Settings Understood by Flexndex</h3>
+<h3 id="confset">5.2. Configuration Settings</h3>
 <div class="paragraph"><p>In the following table items shown like <strong>&lt;this&gt;</strong> are placeholders to
 be filled by the user with the appropriate values as explained after
 the table.  All other characters in the setting are expected verbatim.</p></div>
@@ -939,10 +1059,10 @@ substituted, see the following table.</p></div>
 width="100%"
 frame="border"
 cellspacing="0" cellpadding="4">
-<col width="33%" />
 <col width="16%" />
 <col width="16%" />
-<col width="33%" />
+<col width="16%" />
+<col width="50%" />
 <tbody>
 <tr>
 <td align="left" valign="top"><p class="table">Setting</p></td>
@@ -969,74 +1089,101 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">Markup to output after the ix comment, usually defines a link anchor</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.complete</p></td>
+<td colspan="4" align="left" valign="top"><p class="table">[styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>]</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">complete</p></td>
 <td align="left" valign="top"><p class="table">yes, "no"</p></td>
 <td align="left" valign="top"><p class="table">nothing</p></td>
 <td align="left" valign="top"><p class="table">Set to start with "y" to generate complete term hierarchy, ie if a,b,c
 were the first terms then a and a,b would also be generated</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.prefix</p></td>
+<td align="left" valign="top"><p class="table">prefix</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
 <td align="left" valign="top"><p class="table">std here</p></td>
 <td align="left" valign="top"><p class="table">Markup to output before the index</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.postfix</p></td>
+<td align="left" valign="top"><p class="table">postfix</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
 <td align="left" valign="top"><p class="table">std here</p></td>
 <td align="left" valign="top"><p class="table">Markup to output after the index</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.empty_message</p></td>
+<td align="left" valign="top"><p class="table">empty_message</p></td>
 <td align="left" valign="top"><p class="table">yes, "Empty Index</p></td>
 <td align="left" valign="top"><p class="table">std here</p></td>
 <td align="left" valign="top"><p class="table">Markup to output if the index has no contents, prefix and postfix not
 output</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.entry_start</p></td>
+<td align="left" valign="top"><p class="table">entry_start</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here</p></td>
-<td align="left" valign="top"><p class="table">Markup to output before each entry</p></td>
+<td align="left" valign="top"><p class="table">std here ixprev</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before each entry, or row if collimated by rows</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.entry_end</p></td>
+<td align="left" valign="top"><p class="table">entry_end</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here</p></td>
-<td align="left" valign="top"><p class="table">Markup to output after each entry</p></td>
+<td align="left" valign="top"><p class="table">std here ixprev</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after each entry, or row if collimated by rows</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.text_internal</p></td>
+<td align="left" valign="top"><p class="table">col_start.<strong>&lt;col_no&gt;</strong></p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm</p></td>
+<td align="left" valign="top"><p class="table">std here ixprev</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before specified column if output by column</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">col_end.<strong>&lt;col_no&gt;</strong></p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">std here ixprev</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after specified column if output by column</p></td>
+</tr>
+<tr>
+<td colspan="4" align="left" valign="top"><p class="table">[styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>]</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">text_internal</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">std here ixterm ixprev</p></td>
 <td align="left" valign="top"><p class="table">The markup to output if this term is not the last one for the target
 entry</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.text_last</p></td>
+<td align="left" valign="top"><p class="table">text_last</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm</p></td>
+<td align="left" valign="top"><p class="table">std here ixterm ixprev</p></td>
 <td align="left" valign="top"><p class="table">The markup to output for the last term if it cannot to be a link, ie
 it has more than one target</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.link_last</p></td>
+<td align="left" valign="top"><p class="table">link_last</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm target</p></td>
+<td align="left" valign="top"><p class="table">std here ixterm ixprev target</p></td>
 <td align="left" valign="top"><p class="table">The markup to output for the last term if it can be a link</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>.multi_target</p></td>
+<td align="left" valign="top"><p class="table">multi_target</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm target</p></td>
+<td align="left" valign="top"><p class="table">std here ixterm ixprev target</p></td>
 <td align="left" valign="top"><p class="table">The markup to output for each of multiple targets</p></td>
+</tr>
+<tr>
+<td colspan="4" align="left" valign="top"><p class="table">[styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.col.<strong>&lt;col_no&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>]</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">text_internal, text_last, link_last, multi_target</p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">as above</p></td>
+<td align="left" valign="top"><p class="table">Same as the setting without per-column prefix.  If there are not
+enough column numbers, uses the setting without column number, so
+thats all that is needed if all columns are the same.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="paragraph"><p>substituted when the attribute is.</p></div>
-<div class="paragraph"><p>The substitutions column in the above table means:</p></div>
 <div class="tableblock">
 <table rules="all"
 width="50%"
@@ -1054,20 +1201,153 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">Keyword attributes from the ixhere comment</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">ixterm</p></td>
-<td align="left" valign="top"><p class="table">The term value for the current level</p></td>
+<td align="left" valign="top"><p class="table">comp_1</p></td>
+<td align="left" valign="top"><p class="table">Computed attributes in the comp_1 group</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">comp_2</p></td>
+<td align="left" valign="top"><p class="table">Computed attributes in the comp_2 group</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">target</p></td>
-<td align="left" valign="top"><p class="table">The attributes from the ix comment and {ixtgt} and {tgt_text}<sup>[1]</sup></p></td>
+<td align="left" valign="top"><p class="table">The attributes from the ix comment</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="paragraph"><p>Notes:</p></div>
-<div class="paragraph"><p>[1] {ixtgt} is a unique numeric piece of text identified with the
-target, use it to make link targets, {tgt_text} is either the <em>text</em>
-attribute from the ix comment, if it exists, otherwise the last term.</p></div>
+<div class="paragraph"><p>The meanings of the placeholders are:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+backend
+</dt>
+<dd>
+<p>
+is the name of the backend that the setting applies to
+</p>
+</dd>
+<dt class="hdlist1">
+col_no
+</dt>
+<dd>
+<p>
+is the settings to use for multi-column output.
+Caution, col_no is text, it is not a number.  Convention is to use
+"1", "2" etc as it just defines a sort order, beware "10" sorts before
+"2".
+</p>
+</dd>
+<dt class="hdlist1">
+level_no
+</dt>
+<dd>
+<p>
+is the level of the term that this setting applies to.
+Caution, level_no is text, it is not a number.  Convention is to use
+"1", "2" etc as it just defines a sort order, beware "10" sorts before
+"2".
+</p>
+</dd>
+<dt class="hdlist1">
+style_name
+</dt>
+<dd>
+<p>
+is the name of a style being defined
+</p>
+</dd>
+</dl></div>
+<div class="sect3">
+<h4 id="_substitutions">5.2.1. Substitutions</h4>
+<div class="paragraph"><p>Attributes are substituted into output text by enclosing the attribute
+name in {}.</p></div>
+<div class="paragraph"><p>Substitutions are not recursive, ie {attr} in an attribute value is not
+substituted except in conditional substitutions.</p></div>
+<div class="sect4">
+<h5 id="_conditional_substitutions">Conditional Substitutions</h5>
+<div class="paragraph"><p>Conditional substitutions are performed before other attributes so
+values conditionally substituted may contain other attributes.</p></div>
+<div class="paragraph"><p>Inside values the characters question mark (?), colon (:) and close
+brace (}) must occur twice to distinguish them from the meta
+characters.</p></div>
+<div class="tableblock">
+<table rules="all"
+width="100%"
+frame="border"
+cellspacing="0" cellpadding="4">
+<col width="33%" />
+<col width="66%" />
+<tbody>
+<tr>
+<td align="left" valign="top"><p class="table">Substitute</p></td>
+<td align="left" valign="top"><p class="table">Condition to substitute</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">{name?value}</p></td>
+<td align="left" valign="top"><p class="table">name is defined</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">{name?!value}</p></td>
+<td align="left" valign="top"><p class="table">name is not defined</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">{name=value1?value2:value3}</p></td>
+<td align="left" valign="top"><p class="table">name = value1 then value2 else value 3</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">{name#value1?value2:value3}</p></td>
+<td align="left" valign="top"><p class="table">name not = value1 then value2 else value3</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="paragraph"><p>The :value3 may be omitted if value3 is nothing.</p></div>
+</div>
+<div class="sect4">
+<h5 id="_computed_attributes">Computed attributes</h5>
+<div class="paragraph"><p>The following attributes are computed in the context of the
+substitution.</p></div>
+<div class="tableblock">
+<table rules="all"
+width="100%"
+frame="border"
+cellspacing="0" cellpadding="4">
+<col width="20%" />
+<col width="20%" />
+<col width="60%" />
+<tbody>
+<tr>
+<td align="left" valign="top"><p class="table">Attribute</p></td>
+<td align="left" valign="top"><p class="table">Group</p></td>
+<td align="left" valign="top"><p class="table">Value</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">ixterm</p></td>
+<td align="left" valign="top"><p class="table">comp_1</p></td>
+<td align="left" valign="top"><p class="table">the current level term</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">ixpref</p></td>
+<td align="left" valign="top"><p class="table">comp_1</p></td>
+<td align="left" valign="top"><p class="table">common prefix with previous entry</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">ixtgt</p></td>
+<td align="left" valign="top"><p class="table">comp_2</p></td>
+<td align="left" valign="top"><p class="table">is a unique numeric piece of text identified with the
+target, use it to make link targets</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">ixtext</p></td>
+<td align="left" valign="top"><p class="table">comp_2</p></td>
+<td align="left" valign="top"><p class="table">is either the <em>text</em> attribute from the ix comment, if it exists,
+otherwise the last term.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_built_in_substitutions">Built-in Substitutions</h5>
 <div class="paragraph"><p>The following attributes are built-in, but can be overridden by config
 files:</p></div>
 <div class="tableblock">
@@ -1075,9 +1355,9 @@ files:</p></div>
 width="100%"
 frame="border"
 cellspacing="0" cellpadding="4">
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
+<col width="16%" />
+<col width="16%" />
+<col width="66%" />
 <tbody>
 <tr>
 <td align="left" valign="top"><p class="table">Name</p></td>
@@ -1098,41 +1378,13 @@ stripped off</p></td>
 </tbody>
 </table>
 </div>
-<div class="paragraph"><p>The meanings of the placeholders are:</p></div>
-<div class="dlist"><dl>
-<dt class="hdlist1">
-style_name
-</dt>
-<dd>
-<p>
-is the name of a style being defined
-</p>
-</dd>
-<dt class="hdlist1">
-backend
-</dt>
-<dd>
-<p>
-is the name of the backend that the setting applies to
-</p>
-</dd>
-<dt class="hdlist1">
-level_no
-</dt>
-<dd>
-<p>
-is the level of the term that this setting applies to.
-Caution, level_no is text, it is not a number.  Convention is to use
-"1", "2" etc as it just defines a sort order, beware "10" sorts before
-"2".
-</p>
-</dd>
-</dl></div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_command_reference">Command Reference</h2>
+<h2 id="_command_reference">6. Command Reference</h2>
 <div class="sectionbody">
 <div class=listingblock><div class=content><pre><code>flexndex [options] infile outfile</code></pre></div></div>
 <div class="paragraph"><p>Note that as the outfile is the same type as the infile there is no
@@ -1181,7 +1433,7 @@ print version and exit
 </div>
 </div>
 <div class="sect1">
-<h2 id="pis">Predefined Index Styles</h2>
+<h2 id="pis">7. Predefined Index Styles</h2>
 <div class="sectionbody">
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -1214,7 +1466,7 @@ grouped index as:
 </div>
 </div>
 <div class="sect1">
-<h2 id="uwa">Using With Asciidoc</h2>
+<h2 id="uwa">8. Using With Asciidoc</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Flexndex can be used with the xml generated by the Asciidoc tool in
 xhtml11, docbook and ODT backends.</p></div>
@@ -1248,11 +1500,16 @@ xml can then be processed further by a2x as normal by specifying the
 </div>
 </div>
 <div class="sect1">
-<h2 id="_futures">Futures</h2>
+<h2 id="_futures">9. Futures</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_probable">Probable</h3>
+<h3 id="_probable">9.1. Probable</h3>
 <div class="ulist"><ul>
+<li>
+<p>
+separate levels filter and levels display specification
+</p>
+</li>
 <li>
 <p>
 docbook built-ins
@@ -1271,7 +1528,7 @@ CSS stylable standard styles
 </ul></div>
 </div>
 <div class="sect2">
-<h3 id="_possible">Possible</h3>
+<h3 id="_possible">9.2. Possible</h3>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -1291,7 +1548,7 @@ other backends as standard
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-06-20 17:13:05 EST
+Last updated 2012-06-21 21:48:23 EST
 </div>
 </div>
 </body>
