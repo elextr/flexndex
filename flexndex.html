@@ -822,14 +822,14 @@ sorting of entries,
 </li>
 <li>
 <p>
-iteration through the entries performing:
-</p>
-<div class="ulist"><ul>
-<li>
-<p>
 generation of missing entries,
 </p>
 </li>
+<li>
+<p>
+iteration through the entries performing:
+</p>
+<div class="ulist"><ul>
 <li>
 <p>
 filtering of entries, and
@@ -856,20 +856,20 @@ selection, all entries for the index are shown.</p></div>
 terms by Unicode code point.</p></div>
 </div>
 <div class="sect3">
-<h4 id="_iteration">3.1.3. Iteration</h4>
-<div class="paragraph"><p>The default iteration of entries is simply in sorted order start to
-finish, but options outlined in <a href="#iir">Index Inclusion Request</a> allow
-iteration orders suitable for multiple column output.</p></div>
-<div class="paragraph"><p>For each entry the terms in the entry are iterated in increasing level
-order.</p></div>
-<div class="sect4">
-<h5 id="_generation">Generation</h5>
+<h4 id="_generation">3.1.3. Generation</h4>
 <div class="paragraph"><p>Only the leaf nodes of the hierarchy of terms are specified by the
 <strong>ix</strong> comment.  However some display styles require the internal levels
 for display.  Missing levels are generated during the iteration process.</p></div>
 <div class="paragraph"><p>See <a href="#confset">Configuration Settings</a> for settings controlling
 generation.</p></div>
 </div>
+<div class="sect3">
+<h4 id="_iteration">3.1.4. Iteration</h4>
+<div class="paragraph"><p>The default iteration of entries is simply in sorted order start to
+finish, but options outlined in <a href="#iir">Index Inclusion Request</a> allow
+iteration orders suitable for multiple column output.</p></div>
+<div class="paragraph"><p>For each entry the terms in the entry are iterated in increasing level
+order.</p></div>
 <div class="sect4">
 <h5 id="_filtering">Filtering</h5>
 <div class="paragraph"><p>In some use-cases not all entries need to be displayed, but they are
@@ -966,8 +966,8 @@ id
 <dd>
 <p>
 is the iteration and direction control, l = linear or i =
-interlaced and r = by row or c = by column, not all combinations work
-usefully.
+interlaced and r = by row or c = by column.  Note: Only <em>lc</em> is
+implemented in v0.1.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -976,7 +976,8 @@ bbb
 <dd>
 <p>
 is the column break control, default (no bbb) = make columns as
-close to same length as possible, lnn = break at level nn (or less)
+close to same length as possible, lnn = break at level nn (or less),
+but won&#8217;t change column length by more than 20%
 </p>
 </dd>
 </dl></div>
@@ -1085,7 +1086,7 @@ cellspacing="0" cellpadding="4">
 <tr>
 <td align="left" valign="top"><p class="table">anchors.<strong>&lt;backend&gt;</strong></p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std target</p></td>
+<td align="left" valign="top"><p class="table">std tgt target</p></td>
 <td align="left" valign="top"><p class="table">Markup to output after the ix comment, usually defines a link anchor</p></td>
 </tr>
 <tr>
@@ -1093,10 +1094,12 @@ cellspacing="0" cellpadding="4">
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">complete</p></td>
-<td align="left" valign="top"><p class="table">yes, "no"</p></td>
+<td align="left" valign="top"><p class="table">yes, "none"</p></td>
 <td align="left" valign="top"><p class="table">nothing</p></td>
-<td align="left" valign="top"><p class="table">Set to start with "y" to generate complete term hierarchy, ie if a,b,c
-were the first terms then a and a,b would also be generated</p></td>
+<td align="left" valign="top"><p class="table">Set to start with "e" to generate entries for the complete term
+hierarchy, ie if a,b,c were the first terms then a and a,b would
+also be generated.  Set to "t" to expand multi targets to entries as
+well.</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">prefix</p></td>
@@ -1120,26 +1123,38 @@ output</p></td>
 <tr>
 <td align="left" valign="top"><p class="table">entry_start</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixprev</p></td>
-<td align="left" valign="top"><p class="table">Markup to output before each entry, or row if collimated by rows</p></td>
+<td align="left" valign="top"><p class="table">std here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before each entry, if uncollimated</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">entry_end</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixprev</p></td>
-<td align="left" valign="top"><p class="table">Markup to output after each entry, or row if collimated by rows</p></td>
+<td align="left" valign="top"><p class="table">std here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after each entry, if uncollimated</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">col_start.<strong>&lt;col_no&gt;</strong></p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixprev</p></td>
-<td align="left" valign="top"><p class="table">Markup to output before specified column if output by column</p></td>
+<td align="left" valign="top"><p class="table">std here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before specified column if multiple column</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">col_end.<strong>&lt;col_no&gt;</strong></p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixprev</p></td>
-<td align="left" valign="top"><p class="table">Markup to output after specified column if output by column</p></td>
+<td align="left" valign="top"><p class="table">std here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after specified column if multiple column</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">row_start.<strong>&lt;row_no&gt;</strong></p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">std here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output before specified row if multiple column</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">row_end.<strong>&lt;row_no&gt;</strong></p></td>
+<td align="left" valign="top"><p class="table">yes, nothing</p></td>
+<td align="left" valign="top"><p class="table">std here</p></td>
+<td align="left" valign="top"><p class="table">Markup to output after specified row if multiple column</p></td>
 </tr>
 <tr>
 <td colspan="4" align="left" valign="top"><p class="table">[styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>]</p></td>
@@ -1147,39 +1162,28 @@ output</p></td>
 <tr>
 <td align="left" valign="top"><p class="table">text_internal</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm ixprev</p></td>
+<td align="left" valign="top"><p class="table">std here term</p></td>
 <td align="left" valign="top"><p class="table">The markup to output if this term is not the last one for the target
 entry</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">text_last</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm ixprev</p></td>
+<td align="left" valign="top"><p class="table">std here term</p></td>
 <td align="left" valign="top"><p class="table">The markup to output for the last term if it cannot to be a link, ie
 it has more than one target</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">link_last</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm ixprev target</p></td>
+<td align="left" valign="top"><p class="table">std here term tgt target</p></td>
 <td align="left" valign="top"><p class="table">The markup to output for the last term if it can be a link</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">multi_target</p></td>
 <td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">std here ixterm ixprev target</p></td>
+<td align="left" valign="top"><p class="table">std here term tgt target</p></td>
 <td align="left" valign="top"><p class="table">The markup to output for each of multiple targets</p></td>
-</tr>
-<tr>
-<td colspan="4" align="left" valign="top"><p class="table">[styles.<strong>&lt;style_name&gt;</strong>.<strong>&lt;backend&gt;</strong>.col.<strong>&lt;col_no&gt;</strong>.levels.<strong>&lt;level_no&gt;</strong>]</p></td>
-</tr>
-<tr>
-<td align="left" valign="top"><p class="table">text_internal, text_last, link_last, multi_target</p></td>
-<td align="left" valign="top"><p class="table">yes, nothing</p></td>
-<td align="left" valign="top"><p class="table">as above</p></td>
-<td align="left" valign="top"><p class="table">Same as the setting without per-column prefix.  If there are not
-enough column numbers, uses the setting without column number, so
-thats all that is needed if all columns are the same.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1201,12 +1205,16 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">Keyword attributes from the ixhere comment</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">comp_1</p></td>
-<td align="left" valign="top"><p class="table">Computed attributes in the comp_1 group</p></td>
+<td align="left" valign="top"><p class="table">term</p></td>
+<td align="left" valign="top"><p class="table">Computed attributes in the term group</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">comp_2</p></td>
-<td align="left" valign="top"><p class="table">Computed attributes in the comp_2 group</p></td>
+<td align="left" valign="top"><p class="table">pref</p></td>
+<td align="left" valign="top"><p class="table">Computed attributes in the pref group</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">tgt</p></td>
+<td align="left" valign="top"><p class="table">Computed attributes in the tgt group</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">target</p></td>
@@ -1230,10 +1238,8 @@ col_no
 </dt>
 <dd>
 <p>
-is the settings to use for multi-column output.
-Caution, col_no is text, it is not a number.  Convention is to use
-"1", "2" etc as it just defines a sort order, beware "10" sorts before
-"2".
+is the settings to use for each column in multi-column output.
+See note below.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1242,9 +1248,16 @@ level_no
 <dd>
 <p>
 is the level of the term that this setting applies to.
-Caution, level_no is text, it is not a number.  Convention is to use
-"1", "2" etc as it just defines a sort order, beware "10" sorts before
-"2".
+See note below.
+</p>
+</dd>
+<dt class="hdlist1">
+row_no
+</dt>
+<dd>
+<p>
+is the settings to use for each column in multi-column output.
+See note below.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1256,6 +1269,9 @@ is the name of a style being defined
 </p>
 </dd>
 </dl></div>
+<div class="paragraph"><p>[NOTE] Caution, col_no, level_no and row_no are text, they are not a
+number. They define an order the same as the text sort order.  The
+convention is to use "1", "2" etc, beware "10" sorts before "2".</p></div>
 <div class="sect3">
 <h4 id="_substitutions">5.2.1. Substitutions</h4>
 <div class="paragraph"><p>Attributes are substituted into output text by enclosing the attribute
@@ -1264,6 +1280,14 @@ name in {}.</p></div>
 substituted except in conditional substitutions.</p></div>
 <div class="sect4">
 <h5 id="_conditional_substitutions">Conditional Substitutions</h5>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">Not implemented in v0.1</td>
+</tr></table>
+</div>
 <div class="paragraph"><p>Conditional substitutions are performed before other attributes so
 values conditionally substituted may contain other attributes.</p></div>
 <div class="paragraph"><p>Inside values the characters question mark (?), colon (:) and close
@@ -1303,9 +1327,9 @@ cellspacing="0" cellpadding="4">
 <div class="paragraph"><p>The :value3 may be omitted if value3 is nothing.</p></div>
 </div>
 <div class="sect4">
-<h5 id="_computed_attributes">Computed attributes</h5>
-<div class="paragraph"><p>The following attributes are computed in the context of the
-substitution.</p></div>
+<h5 id="_computed_substitutions">Computed Substitutions</h5>
+<div class="paragraph"><p>The following substitutions are computed in context of the term or the
+target.</p></div>
 <div class="tableblock">
 <table rules="all"
 width="100%"
@@ -1322,23 +1346,18 @@ cellspacing="0" cellpadding="4">
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">ixterm</p></td>
-<td align="left" valign="top"><p class="table">comp_1</p></td>
+<td align="left" valign="top"><p class="table">term</p></td>
 <td align="left" valign="top"><p class="table">the current level term</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">ixpref</p></td>
-<td align="left" valign="top"><p class="table">comp_1</p></td>
-<td align="left" valign="top"><p class="table">common prefix with previous entry</p></td>
-</tr>
-<tr>
 <td align="left" valign="top"><p class="table">ixtgt</p></td>
-<td align="left" valign="top"><p class="table">comp_2</p></td>
+<td align="left" valign="top"><p class="table">tgt</p></td>
 <td align="left" valign="top"><p class="table">is a unique numeric piece of text identified with the
 target, use it to make link targets</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">ixtext</p></td>
-<td align="left" valign="top"><p class="table">comp_2</p></td>
+<td align="left" valign="top"><p class="table">tgt</p></td>
 <td align="left" valign="top"><p class="table">is either the <em>text</em> attribute from the ix comment, if it exists,
 otherwise the last term.</p></td>
 </tr>
@@ -1548,7 +1567,7 @@ other backends as standard
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-06-21 21:48:23 EST
+Last updated 2012-06-29 21:23:05 EST
 </div>
 </div>
 </body>

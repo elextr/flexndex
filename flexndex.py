@@ -80,6 +80,8 @@ class Settings:
     def sorted_keys(self):
         s = self.d.keys(); s.sort()
         return s
+    def key_sorted_values(self):
+        return [ self.d[k].v for k in self.sorted_keys() ]
     def value(self):
         return self.v
     def parse(self, file):
@@ -154,8 +156,7 @@ class Estyle:
 
 class Style:
     def __init__(self, settings=Settings()):
-        #if args.verbose > 2: 
-        settings.debug_print()
+        if args.verbose > 2: settings.debug_print()
         self.complete = settings.get('complete', 'n')
         self.entry_start = settings.get('entry_start', '')
         self.entry_end = settings.get('entry_end', '')
@@ -165,15 +166,20 @@ class Style:
         self.levels = []
         l = settings.get(('levels',), None)
         if l is not None:
-			self.levels = [ Estyle( l.get((i,)) ) for i in l.sorted_keys() ]
-        #self.cols = []
-        #c = settings.get(('cols',), None)
-        #if c is not None:
-			#for j in c.sorted_keys():
-		        #l = c.get((j, 'levels',), None)
-		        #if l is not None:
-					#s = [ Estyle( l.get((i,)) ) for i in l.sorted_keys() ]
-					#self.cols.append(s)
+            self.levels = [ Estyle( l.get((i,)) ) for i in l.sorted_keys() ]
+        c = settings.get(('col_start',), None)
+        if c is not None: self.col_starts = c.key_sorted_values()
+        else: self.col_starts = ['']
+        c = settings.get(('col_end',), None)
+        if c is not None: self.col_ends = c.key_sorted_values()
+        else: self.col_ends = ['']
+        c = settings.get(('row_start',), None)
+        if c is not None: self.row_starts = c.key_sorted_values()
+        else: self.row_starts = ['']
+        c = settings.get(('row_end',), None)
+        if c is not None: self.row_ends = c.key_sorted_values()
+        else: self.row_ends = ['']
+
 
 # Built-in style definitions
 
@@ -213,31 +219,28 @@ levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</
 levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
 levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
 entry_end = </p>{nl}
-complete = y
+complete = e
 
-[styles.column_grouped.xhtml11]
+[styles.column-grouped.xhtml11]
 levels.1.text_internal = 
-levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.1.link_last = <p><a href="#ix{ixtgt}">{ixterm}</a>
 levels.1.text_last = <p>{ixterm}{sp}
-levels.1.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.1.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.2.text_internal = 
-levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">{ixterm}</a>
 levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
-levels.2.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.2.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.3.text_internal = 
 levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
 levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
-levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
-entry_end = </p>{nl}
-prefix=<table>
-postfix=</table>
-col_start.1 = <tr><td>
-col_end.1 = </td></tr>
-col_start.2 = <tr><td><p>{ixprev} {contd}</p>
-col_end.2 = </td></tr>
-col_start.3 = <tr><td><p>{ixprev} {contd}</p>
-col_end.3 = </td></tr>
-complete = y
+levels.3.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
+prefix=<table width="100%"><tr>
+postfix=</tr></table>
+col_start.1 = <td valign="top">
+col_end.1 = </td>{nl}
+row_start.1 =
+row_end.1 =</p>{nl}
+complete = t
 
 """
 
@@ -291,50 +294,6 @@ def subout(o, sstr, *dicts, **kwargs):
                     print "Warning: attribute", bit[1], "not found, left in output"
                     o.write('{'+bit[1]+'}')
 
-# output an index
-def indexout(o, k, styleob, hereattrs, tgts, comp, minl, maxl):
-    subout(o, styleob.prefix, hereattrs )
-    entry = []
-    
-    #TODO by column, by row, divide into cols, re-arrange and order like the doc?
-    
-    for tentry in k :
-        pref_len = len(shared_prefix(entry, tentry))
-        done = False
-        while not done:
-			prev = entry
-            if comp and pref_len+1 < len(tentry):
-                tgt = {}
-                entry = entry[:pref_len]; entry.append(tentry[pref_len])
-                pref_len += 1
-            else:
-                tgt = tgts[tentry]
-                entry = list(tentry)
-                done = True
-            if len(entry) > maxl : continue
-            subout(o, styleob.entry_start, hereattrs )
-            for term, tstyle in zip(entry[minl:-1], styleob.levels):
-                subout(o, tstyle.text_internal, hereattrs, ixterm=term)
-            if len(entry) <= len(styleob.levels):
-                tstyle = styleob.levels[len(entry)-1]
-                lt = len(tgt)
-                if lt == 1:
-                    rno, tgt_attrs = tgt.items()[0]
-                    txt = tgt_attrs.get('text', entry[-1])
-                    subout(o, tstyle.link_last, tgt_attrs, hereattrs,
-                        ixterm=entry[-1], ixtgt=rno, ixtext=txt)
-                else:
-                    subout(o, tstyle.text_last, hereattrs, ixterm=entry[-1])
-                if lt > 1:
-                    for t in tgt.items():
-                        txt = t[1].get('text', entry[-1])
-                        subout(o, tstyle.multi_target, t[1], hereattrs,
-                            ixterm = entry[-1], ixtgt=t[0], ixtext=txt)
-                subout(o, styleob.entry_end, hereattrs)
-            else:
-                print "Warning, not enough style levels for target terms", entry
-    subout(o, styleob.postfix, hereattrs)
-
 ix_re = re.compile(r'<!-- ix (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
 ixhere_re = re.compile(r'<!-- ixhere (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
 
@@ -357,6 +316,72 @@ def pass1():
     if args.verbose > 0 : print 'Pass 1 found', ic, 'ix entries'
 
 levels_re = re.compile(r'(\d)*-?(\d)*')
+
+# returns tuple:
+#   entry list in output order
+#   list of tuples of start/end counts
+#   list of tuples of per-entry templates, start, end
+#   list of tuples per-count templates, start, end
+cattr_re = re.compile(r'(?P<num>\d+)(?P<id>(i|l)(r|c))(?P<break>.\d+)?')
+def collimate(entries, hereattrs, styleob, lno):
+    colattr = hereattrs.get('cols')
+    if colattr is None:
+        if args.verbose > 2: print "Not collimated"
+        return ( entries,
+                 [(0, len(entries))],
+                 [(styleob.entry_start, styleob.entry_end)],
+                 [('', '')] )
+    if args.verbose > 2: print "Collimated"
+    mo = cattr_re.match(colattr)
+    if mo is None:
+        print "Error: unrecognised column attribute", colattr, "at line", lno
+        return [None, None, None, None]
+    cols = int(mo.group('num'))
+    # get list of column lengths
+    counts = [len(entries)/cols] * cols
+    for i in range(len(entries) % cols): counts[i] += 1
+    if mo.group('break') is not None:
+        blevel = int(mo.group('break')[1:])
+        if args.verbose > 1: print "Break at", blevel
+    else: blevel = None
+    # adjust column lengths for break level
+    cincr = 0
+    for i in range(cols):
+        c = counts[i] + cincr; b = c; cincr = c
+        if blevel is not None and i < cols-1: 
+            cmax = c + counts[i+1]/2; bmin = c - counts[i]/2;
+            print "c, cmax, bmin", c, cmax, bmin
+            while len(entries[c][0]) > blevel and len(entries[b][0]) > blevel:
+                c += 1; b -= 1
+                print "c,b",c,b
+                if c >= cmax and b <= bmin :
+                    c = cincr
+                    break
+            else:
+                if len(entries[b][0]) <= blevel: c = b
+        print "c=",c
+        counts[i] = c
+    # get increments and style pairs dependent on id
+    id = mo.group('id')
+    if id == 'lc':
+        prev = 0; count_pairs = []
+        for i in counts:
+            count_pairs.append((prev, i-1))
+            prev = i
+        estyles = zip(styleob.row_starts, styleob.row_ends)
+        cstyles = zip(styleob.col_starts, styleob.col_ends)
+    elif id == 'lr':
+        pass
+    elif id == 'ic':
+        pass
+    elif id == 'ir':
+        pass
+    if args.verbose > 2:
+        print "    Column lengths", count_pairs
+        print "    Entry Styles", estyles
+        print "    Count styles", cstyles
+    return [entries, count_pairs, estyles, cstyles]
+    
 def pass2():
     if args.verbose > 1 : print "Pass 2"
     ic = 0; hc = 0
@@ -368,37 +393,101 @@ def pass2():
             if m is not None:
                 if args.verbose > 1 : print 'Found ixhere in: ', line,
                 hc += 1
-                tgts = inds.get(m.group('target'), {})
-                a, hereattrs = attr_tuple(m.group('attrlist'))
-                k = tgts.keys()
-                if args.verbose > 2 : print 'Terms', k
-                if len(a) > 0:
-                    k = [ x for x in k if x[0:len(a)] == a ]
-                if 'levels' in hereattrs:
-                    minl, maxl = levels_re.match(hereattrs['levels']).groups()
-                    if maxl: maxl = int(maxl)
-                    else: maxl = 1000
-                    if minl: minl = int(minl)-1
-                    else: minl = 0
-                else:
-                    minl, maxl = (0, 1000)
+                # decode the ixhere comment and attributes
+                hereindex = inds.get(m.group('target'), {})
+                selargs, hereattrs = attr_tuple(m.group('attrlist'))
                 style = hereattrs.get('style', default_style)
                 if style not in styles :
                     print 'Warning: index style', style,
                     print "not found, using default, at line ", lno
                     style = default_style
                 styleob = styles[style].get(args.backend)
-                if styleob is not None:
-                    if len(k) == 0:
-                        subout(o, styleob.empty_message, hereattrs)
-                    else:
-                        k.sort()
-                        indexout(o, k, styleob, hereattrs, tgts,
-                                styleob.complete.startswith('y'), minl, maxl)
-                else:
+                if styleob is None:
                     print "Warning: backend", args.backend,
                     print "not found for style", style, ", index omitted",
                     print "at line", lno
+                    continue
+                subout(o, styleob.prefix, hereattrs )
+                #get terms
+                terms = hereindex.keys()
+                if args.verbose > 2 : print 'Terms in index', terms
+                if len(terms) == 0:
+                    subout(o, styleob.empty_message, hereattrs)
+                    continue
+                # select only terms matching the arguments
+                if len(selargs) > 0:
+                    terms = [ x for x in terms if x[0:len(selargs)] == selargs ]
+                terms.sort()
+                # generate missing entries if needed
+                if styleob.complete.startswith('e') or styleob.complete.startswith('t'):
+                    entries = []; lastentry = []
+                    for entry in terms:
+                        pref_len = len(shared_prefix(entry, lastentry))
+                        while pref_len+1 < len(entry):
+                            entries.insert(0, [entry[:pref_len+1], {}, False])
+                            pref_len += 1
+                        if styleob.complete.startswith('t') and len(hereindex[entry]) > 1:
+                            for t in hereindex[entry].items():
+                                entries.insert(0, [list(entry), {t[0] : t[1]}, True])
+                        else:
+                            entries.insert(0, [list(entry), hereindex[entry], False])
+                    entries.reverse()
+                else:
+                    entries = [ [list(x), hereindex[x], False] for x in terms ]
+                # filter out by levels
+                if 'levels' in hereattrs:
+                    minl, maxl = levels_re.match(hereattrs['levels']).groups()
+                    if maxl: maxl = int(maxl)
+                    else: maxl = 1000
+                    if minl: minl = int(minl)-1
+                    else: minl = 0
+                    entries = [ x for x in entries if len(x[0]) > minl and len(x[0]) < maxl ]
+                else:
+                    minl = 0
+                # collimate
+                entries, counts, estyles, cstyles = collimate(entries, hereattrs, styleob, lno)
+                if entries is None: continue
+                elen = len(estyles); clen = len(cstyles)
+                # iterate through entries
+                count = 0; count_min, count_max = counts.pop(0)
+                count_no = 0; entry_no = 0;
+                for entry, tgt, mte in entries:
+                    if count == count_min:
+                        subout(o, cstyles[count_no][0], hereattrs)
+                    subout(o, estyles[entry_no][0], hereattrs )
+                    # output internal levels from minimum
+                    for term, tstyle in zip(entry[minl:-1], styleob.levels):
+                        subout(o, tstyle.text_internal, hereattrs, ixterm=term)
+                    # output the last level as link or multi target
+                    if len(entry) <= len(styleob.levels):
+                        tstyle = styleob.levels[len(entry)-1]
+                        lt = len(tgt)
+                        if lt == 1 and not mte:
+                            # single target, make the last term text a link
+                            rn, tgt_attrs = tgt.items()[0]
+                            txt = tgt_attrs.get('text', entry[-1])
+                            subout(o, tstyle.link_last, tgt_attrs, hereattrs,
+                                ixterm=entry[-1], ixtgt=rn, ixtext=txt)
+                        else:
+                            # no target, output last term as text
+                            subout(o, tstyle.text_last, hereattrs, ixterm=entry[-1])
+                        if lt > 1 or mte:
+                            # multiple targets, iterate through the multi targets
+                            for t in tgt.items():
+                                txt = t[1].get('text', entry[-1])
+                                subout(o, tstyle.multi_target, t[1], hereattrs,
+                                    ixterm = entry[-1], ixtgt=t[0], ixtext=txt)
+                        subout(o, estyles[entry_no][1], hereattrs)
+                        entry_no = (entry_no + 1) % elen
+                        if count == count_max:
+                            subout(o, cstyles[count_no][1], hereattrs)
+                            if len(counts) == 0: break
+                            count_min, count_max = counts.pop(0)
+                        count += 1
+                        count_no = (count_no + 1) % clen
+                    else:
+                        print "Warning, not enough style levels for target terms", entry
+                subout(o, styleob.postfix, hereattrs)
             upto = 0
             for m in ix_re.finditer(line):
                 if args.verbose > 1 : print 'Found ix in: ', line,

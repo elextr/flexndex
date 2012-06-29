@@ -56,8 +56,8 @@ The index content is created by the following steps:
 
 * selection of entries to include,
 * sorting of entries,
+* generation of missing entries,
 * iteration through the entries performing:
-** generation of missing entries,
 ** filtering of entries, and
 ** substitution of terms and attributes of the entry into output 
 markup templates from the configuration settings.
@@ -75,6 +75,16 @@ Sorting of entries
 The selected entries are sorted by each level in order comparing the 
 terms by Unicode code point.
 
+Generation
+^^^^^^^^^^
+
+Only the leaf nodes of the hierarchy of terms are specified by the 
+*ix* comment.  However some display styles require the internal levels 
+for display.  Missing levels are generated during the iteration process.
+
+See <<confset, Configuration Settings>> for settings controlling 
+generation.
+
 Iteration
 ^^^^^^^^^
 
@@ -85,15 +95,6 @@ iteration orders suitable for multiple column output.
 For each entry the terms in the entry are iterated in increasing level 
 order.
 
-Generation
-++++++++++
-
-Only the leaf nodes of the hierarchy of terms are specified by the 
-*ix* comment.  However some display styles require the internal levels 
-for display.  Missing levels are generated during the iteration process.
-
-See <<confset, Configuration Settings>> for settings controlling 
-generation.
 
 Filtering
 +++++++++
@@ -180,11 +181,12 @@ cols:: specify collimation parameters, format is nnidbbb where:
 nn::: is the number of columns (decimal number)
 
 id::: is the iteration and direction control, l = linear or i = 
-interlaced and r = by row or c = by column, not all combinations work 
-usefully.
+interlaced and r = by row or c = by column.  Note: Only 'lc' is 
+implemented in v0.1.
 
 bbb::: is the column break control, default (no bbb) = make columns as
-close to same length as possible, lnn = break at level nn (or less)
+close to same length as possible, lnn = break at level nn (or less), 
+but won't change column length by more than 20%
 
 levels:: filter the output to entries whose length falls in the range 
 specified and limit display to these levels.
@@ -245,9 +247,12 @@ substituted, see the following table.
 | Markup to output after the ix comment, usually defines a link anchor
 
 4+| [styles.*<style_name>*.*<backend>*]
-| complete | yes, "no" | nothing
-| Set to start with "y" to generate complete term hierarchy, ie if a,b,c
-were the first terms then a and a,b would also be generated
+| complete | yes, "none" | nothing
+
+| Set to start with "e" to generate entries for the complete term
+hierarchy, ie if a,b,c were the first terms then a and a,b would
+also be generated.  Set to "t" to expand multi targets to entries as 
+well.
 
 | prefix | yes, nothing | std here
 | Markup to output before the index
@@ -260,16 +265,22 @@ were the first terms then a and a,b would also be generated
 output
 
 | entry_start | yes, nothing | std here
-| Markup to output before each entry, or row if collimated by rows
+| Markup to output before each entry, if uncollimated
 
 | entry_end | yes, nothing | std here
-| Markup to output after each entry, or row if collimated by rows
+| Markup to output after each entry, if uncollimated
 
-| col_start.*<col_no>* | yes, nothing | std here pref
-| Markup to output before specified column if output by column
+| col_start.*<col_no>* | yes, nothing | std here
+| Markup to output before specified column if multiple column
 
-| col_end.*<col_no>* | yes, nothing | std here pref
-| Markup to output after specified column if output by column
+| col_end.*<col_no>* | yes, nothing | std here
+| Markup to output after specified column if multiple column
+
+| row_start.*<row_no>* | yes, nothing | std here
+| Markup to output before specified row if multiple column
+
+| row_end.*<row_no>* | yes, nothing | std here
+| Markup to output after specified row if multiple column
 
 4+| [styles.*<style_name>*.*<backend>*.levels.*<level_no>*]
 | text_internal | yes, nothing | std here term
@@ -301,17 +312,20 @@ The meanings of the placeholders are:
 
 backend:: is the name of the backend that the setting applies to
 
-col_no:: is the settings to use for multi-column output. 
-Caution, col_no is text, it is not a number.  Convention is to use
-"1", "2" etc as it just defines a sort order, beware "10" sorts before
-"2".
+col_no:: is the settings to use for each column in multi-column output. 
+See note below.
 
 level_no:: is the level of the term that this setting applies to.
-Caution, level_no is text, it is not a number.  Convention is to use
-"1", "2" etc as it just defines a sort order, beware "10" sorts before
-"2".
+See note below.
+
+row_no:: is the settings to use for each column in multi-column output. 
+See note below.
 
 style_name:: is the name of a style being defined
+
+[NOTE] Caution, col_no, level_no and row_no are text, they are not a
+number. They define an order the same as the text sort order.  The
+convention is to use "1", "2" etc, beware "10" sorts before "2".
 
 Substitutions
 ^^^^^^^^^^^^^
@@ -324,6 +338,9 @@ substituted except in conditional substitutions.
 
 Conditional Substitutions
 +++++++++++++++++++++++++
+
+[NOTE]
+Not implemented in v0.1
 
 Conditional substitutions are performed before other attributes so 
 values conditionally substituted may contain other attributes.
@@ -343,17 +360,16 @@ characters.
 
 The :value3 may be omitted if value3 is nothing.
 
-Computed attributes
-+++++++++++++++++++
+Computed Substitutions
+++++++++++++++++++++++
 
-The following attributes are computed in the context of the 
-substitution.
+The following substitutions are computed in context of the term or the 
+target.
 
 [cols="1,1,3"]
 |====
 | Attribute | Group | Value
 | ixterm | term | the current level term
-| ixpref | pref | common prefix with previous entry
 | ixtgt | tgt
 | is a unique numeric piece of text identified with the
 target, use it to make link targets
