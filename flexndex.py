@@ -193,31 +193,31 @@ styles_config = """
 levels.1.text_internal = {ixterm}.
 levels.1.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
 levels.1.text_last = {ixterm}{sp}
-levels.1.multi_target = <a href="#ix{ixtgt}">[{ixtext}] </a>
+levels.1.multi_target = <a href="#ix{ixtgt}">{ixtext} </a>
 levels.2.text_internal = {ixterm}.
 levels.2.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
 levels.2.text_last = {ixterm}{sp}
-levels.2.multi_target = <a href="#ix{ixtgt}">[{ixtext}] </a>
+levels.2.multi_target = <a href="#ix{ixtgt}">{ixtext} </a>
 levels.3.text_internal = {ixterm}.
 levels.3.link_last = <a href="#ix{ixtgt}">{ixterm}</a>
 levels.3.text_last = {ixterm}{sp}
-levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>
+levels.3.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>
 entry_start = <p>
 entry_end = </p>{nl}
 
 [styles.simple-grouped.xhtml11]
 levels.1.text_internal = 
-levels.1.link_last = <p><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.1.link_last = <p><a href="#ix{ixtgt}">{ixterm}</a>
 levels.1.text_last = <p>{ixterm}{sp}
-levels.1.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.1.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.2.text_internal = 
-levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">[{ixterm}]</a>
+levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">{ixterm}</a>
 levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
-levels.2.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.2.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.3.text_internal = 
 levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
 levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
-levels.3.multi_target = <a href="#ix{ixtgt}">[{ixtext}]</a>{sp}
+levels.3.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 entry_end = </p>{nl}
 complete = e
 
@@ -350,16 +350,16 @@ def collimate(entries, hereattrs, styleob, lno):
         c = counts[i] + cincr; b = c; cincr = c
         if blevel is not None and i < cols-1: 
             cmax = c + counts[i+1]/2; bmin = c - counts[i]/2;
-            print "c, cmax, bmin", c, cmax, bmin
+            if args.verbose > 2: print "c, cmax, bmin", c, cmax, bmin
             while len(entries[c][0]) > blevel and len(entries[b][0]) > blevel:
                 c += 1; b -= 1
-                print "c,b",c,b
+                if args.verbose > 2: print "c,b",c,b
                 if c >= cmax and b <= bmin :
                     c = cincr
                     break
             else:
                 if len(entries[b][0]) <= blevel: c = b
-        print "c=",c
+        if args.verbose > 2: print "c=",c
         counts[i] = c
     # get increments and style pairs dependent on id
     id = mo.group('id')
@@ -431,6 +431,7 @@ def pass2():
                                 entries.insert(0, [list(entry), {t[0] : t[1]}, True])
                         else:
                             entries.insert(0, [list(entry), hereindex[entry], False])
+                        lastentry = entry
                     entries.reverse()
                 else:
                     entries = [ [list(x), hereindex[x], False] for x in terms ]
