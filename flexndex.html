@@ -983,6 +983,15 @@ but won&#8217;t change column length by more than 20%
 </dl></div>
 </dd>
 <dt class="hdlist1">
+indents
+</dt>
+<dd>
+<p>
+how much to indent each column by, level*this value is put
+in {ixindent} attribute, default 0
+</p>
+</dd>
+<dt class="hdlist1">
 levels
 </dt>
 <dd>
@@ -1016,6 +1025,53 @@ up to level n1 inclusive
 </p>
 <div class="paragraph"><p>where n1 and n2 are decimal numbers counting from one.  Missing levels
 attribute means all.  Terms for levels below n1 are not displayed.</p></div>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+sort
+</dt>
+<dd>
+<p>
+sort as specified, default is all levels by increasing Unicode
+code point. The attribute value is an optionally whitespace separated
+list of the following:
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+levels
+</dt>
+<dd>
+<p>
+limit sort to the specified levels, <em>levels</em> is followed by:
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+n1-n2
+</dt>
+<dd>
+<p>
+from level n1 to level n2 inclusive
+</p>
+</dd>
+<dt class="hdlist1">
+n1-
+</dt>
+<dd>
+<p>
+from level n1 up inclusive
+</p>
+</dd>
+<dt class="hdlist1">
+-n1, n1
+</dt>
+<dd>
+<p>
+up to level n1 inclusive
+</p>
+<div class="paragraph"><p>where n1 and n2 are decimal numbers counting from one.</p></div>
+</dd>
+</dl></div>
 </dd>
 </dl></div>
 </dd>
@@ -1275,7 +1331,8 @@ convention is to use "1", "2" etc, beware "10" sorts before "2".</p></div>
 <div class="sect3">
 <h4 id="_substitutions">5.2.1. Substitutions</h4>
 <div class="paragraph"><p>Attributes are substituted into output text by enclosing the attribute
-name in {}.</p></div>
+name in {}. Attribute names should be alphanumerics and underscore
+only. This is not checked.</p></div>
 <div class="paragraph"><p>Substitutions are not recursive, ie {attr} in an attribute value is not
 substituted except in conditional substitutions.</p></div>
 <div class="sect4">
@@ -1285,7 +1342,7 @@ substituted except in conditional substitutions.</p></div>
 <td class="icon">
 <div class="title">Note</div>
 </td>
-<td class="content">Not implemented in v0.1</td>
+<td class="content">Only name?| implemented in v0.1</td>
 </tr></table>
 </div>
 <div class="paragraph"><p>Conditional substitutions are performed before other attributes so
@@ -1306,20 +1363,24 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">Condition to substitute</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">{name?value}</p></td>
-<td align="left" valign="top"><p class="table">name is defined</p></td>
+<td align="left" valign="top"><p class="table">{name?*value}</p></td>
+<td align="left" valign="top"><p class="table">name is defined substitute value</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">{name?!value}</p></td>
-<td align="left" valign="top"><p class="table">name is not defined</p></td>
+<td align="left" valign="top"><p class="table">{name?#value}</p></td>
+<td align="left" valign="top"><p class="table">name is not defined substitute value</p></td>
 </tr>
 <tr>
-<td align="left" valign="top"><p class="table">{name=value1?value2:value3}</p></td>
+<td align="left" valign="top"><p class="table">{name?</p></td>
+<td align="left" valign="top"><p class="table">value}</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">if name is defined substitute the attribute, else value</p></td>
+<td align="left" valign="top"><p class="table">{name?=value1?value2:value3}</p></td>
+</tr>
+<tr>
 <td align="left" valign="top"><p class="table">name = value1 then value2 else value 3</p></td>
-</tr>
-<tr>
-<td align="left" valign="top"><p class="table">{name#value1?value2:value3}</p></td>
-<td align="left" valign="top"><p class="table">name not = value1 then value2 else value3</p></td>
+<td align="left" valign="top"><p class="table">{name?!value1?value2:value3}</p></td>
 </tr>
 </tbody>
 </table>
@@ -1348,6 +1409,11 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">ixterm</p></td>
 <td align="left" valign="top"><p class="table">term</p></td>
 <td align="left" valign="top"><p class="table">the current level term</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table">ixindent</p></td>
+<td align="left" valign="top"><p class="table">term</p></td>
+<td align="left" valign="top"><p class="table">the indent * current level</p></td>
 </tr>
 <tr>
 <td align="left" valign="top"><p class="table">ixtgt</p></td>
@@ -1536,7 +1602,12 @@ docbook built-ins
 </li>
 <li>
 <p>
-multi-column indices
+multi-column indices (alpha)
+</p>
+</li>
+<li>
+<p>
+inverse indices
 </p>
 </li>
 <li>
@@ -1567,7 +1638,7 @@ other backends as standard
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-06-29 21:23:05 EST
+Last updated 2012-07-01 22:54:44 EST
 </div>
 </div>
 </body>

@@ -211,28 +211,28 @@ levels.1.link_last = <p><a href="#ix{ixtgt}">{ixterm}</a>
 levels.1.text_last = <p>{ixterm}{sp}
 levels.1.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.2.text_internal = 
-levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">{ixterm}</a>
-levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
+levels.2.link_last = <p style="text-indent:{ixindent}em;"><a href="#ix{ixtgt}">{ixterm}</a>
+levels.2.text_last = <p style="text-indent:{ixindent}em;">{ixterm}{sp}
 levels.2.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.3.text_internal = 
-levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
-levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
+levels.3.link_last = <p style="text-indent:{ixindent}em;"><a href="#ix{ixtgt}">{ixterm}</a>
+levels.3.text_last = <p style="text-indent:{ixindent}em;">{ixterm}{sp}
 levels.3.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 entry_end = </p>{nl}
 complete = e
 
 [styles.column-grouped.xhtml11]
 levels.1.text_internal = 
-levels.1.link_last = <p><a href="#ix{ixtgt}">{ixterm}</a>
-levels.1.text_last = <p>{ixterm}{sp}
+levels.1.link_last = <p><a href="#ix{ixtgt}">{ixterm}</a> {text}
+levels.1.text_last = <p>{ixterm} {text?|}{sp}
 levels.1.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.2.text_internal = 
-levels.2.link_last = <p style="text-indent:2em;"><a href="#ix{ixtgt}">{ixterm}</a>
-levels.2.text_last = <p style="text-indent:2em;">{ixterm}{sp}
+levels.2.link_last = <p style="text-indent:{ixindent}em;"><a href="#ix{ixtgt}">{ixterm}</a> {text?|}
+levels.2.text_last = <p style="text-indent:{ixindent}em;">{ixterm} {text?|}{sp}
 levels.2.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 levels.3.text_internal = 
-levels.3.link_last = <p style="text-indent:4em;"><a href="#ix{ixtgt}">{ixterm}</a>
-levels.3.text_last = <p style="text-indent:4em;">{ixterm}{sp}
+levels.3.link_last = <p style="text-indent:{ixindent}em;"><a href="#ix{ixtgt}">{ixterm}</a> {text?|}
+levels.3.text_last = <p style="text-indent:{ixindent}em;">{ixterm} {text?|}{sp}
 levels.3.multi_target = <a href="#ix{ixtgt}">{ixtext}</a>{sp}
 prefix=<table width="100%"><tr>
 postfix=</tr></table>
@@ -272,27 +272,37 @@ def attr_tuple(attlist):
 # accepts a list of mapping objects for subs values searched left to right
 # kwargs for subs values, searched before any dicts
 # attributes global searched last
-fmt = string.Formatter()
+subs_re = re.compile(r'({(?!{).*?}(?!}))')
 def subout(o, sstr, *dicts, **kwargs):
-    bits = fmt.parse(sstr)
-    for bit in bits:
-        if bit[0]: o.write(bit[0])
-        if bit[1] is not None:
-            s = kwargs.get(bit[1])
-            if s is not None:
-                o.write(s)
-                continue
-            for d in dicts:
-                s = d.get(bit[1])
+    def getkey(key):
+        s = kwargs.get(key)
+        if s is not None: return s
+        for d in dicts:
+            s = d.get(key)
+            if s is not None: return s
+        s = attributes.get(key)
+        return s
+    bits = [ z.replace('{{','{').replace('}}', '}') for z in subs_re.split(sstr) ]
+    bits.append('{}')
+    for textbit, subsbit in zip(*[iter(bits)]*2):
+        o.write(textbit)
+        if subsbit != '{}':
+            cond = subsbit[1:-1].split('?', 1)
+            s = getkey(cond[0])
+            if len(cond) > 1: # conditional attribute
+                cop = cond[1][0]
+                if cop == '|':
+                    if s is not None: o.write(s)
+                    else: o.write(cond[1][1:])
+                else:
+                    print "Warning: Unknown conditional operator", cop, "left in output"
+                    o.write(subsbit)
+            else:
                 if s is not None:
                     o.write(s)
-                    break
-            else:
-                s = attributes.get(bit[1])
-                if s is not None: o.write(s)
                 else:
-                    print "Warning: attribute", bit[1], "not found, left in output"
-                    o.write('{'+bit[1]+'}')
+                    print "Warning: attribute", subsbit, "not found, left in output"
+                    o.write(subsbit)
 
 ix_re = re.compile(r'<!-- ix (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
 ixhere_re = re.compile(r'<!-- ixhere (?P<target>\S+) <(?P<attrlist>[^>]*)> -->')
@@ -316,6 +326,7 @@ def pass1():
     if args.verbose > 0 : print 'Pass 1 found', ic, 'ix entries'
 
 levels_re = re.compile(r'(\d)*-?(\d)*')
+sort_levels_re = re.compile(r'levels\s*(\d)*-?(\d)*')
 
 # returns tuple:
 #   entry list in output order
@@ -417,7 +428,17 @@ def pass2():
                 # select only terms matching the arguments
                 if len(selargs) > 0:
                     terms = [ x for x in terms if x[0:len(selargs)] == selargs ]
-                terms.sort()
+                if 'sort' in hereattrs :
+                    mo = sort_levels_re.search(hereattrs['sort'])
+                    if mo:
+                        minl, maxl = mo.groups()
+                        if maxl: maxl = int(maxl)
+                        else: maxl = -2
+                        if minl: minl = int(minl)-1
+                        else: minl = 0
+                        terms.sort(key=lambda e: e[minl:maxl+1])
+                    else : print "Unknown sort option", hereattrs['sort']
+                else: terms.sort()
                 # generate missing entries if needed
                 if styleob.complete.startswith('e') or styleob.complete.startswith('t'):
                     entries = []; lastentry = []
@@ -442,13 +463,15 @@ def pass2():
                     else: maxl = 1000
                     if minl: minl = int(minl)-1
                     else: minl = 0
-                    entries = [ x for x in entries if len(x[0]) > minl and len(x[0]) < maxl ]
+                    entries = [ x for x in entries if len(x[0]) > minl and len(x[0]) <= maxl ]
                 else:
                     minl = 0
                 # collimate
                 entries, counts, estyles, cstyles = collimate(entries, hereattrs, styleob, lno)
                 if entries is None: continue
                 elen = len(estyles); clen = len(cstyles)
+                # set indents
+                indent = int(hereattrs.get('indents', '0'))
                 # iterate through entries
                 count = 0; count_min, count_max = counts.pop(0)
                 count_no = 0; entry_no = 0;
@@ -457,9 +480,12 @@ def pass2():
                         subout(o, cstyles[count_no][0], hereattrs)
                     subout(o, estyles[entry_no][0], hereattrs )
                     # output internal levels from minimum
+                    level_no = 0
                     for term, tstyle in zip(entry[minl:-1], styleob.levels):
-                        subout(o, tstyle.text_internal, hereattrs, ixterm=term)
+                        subout(o, tstyle.text_internal, hereattrs, ixterm=term, ixindent=str(level_no * indent))
+                        level_no += 1
                     # output the last level as link or multi target
+                    indent_no = str(indent * level_no)
                     if len(entry) <= len(styleob.levels):
                         tstyle = styleob.levels[len(entry)-1]
                         lt = len(tgt)
@@ -468,16 +494,16 @@ def pass2():
                             rn, tgt_attrs = tgt.items()[0]
                             txt = tgt_attrs.get('text', entry[-1])
                             subout(o, tstyle.link_last, tgt_attrs, hereattrs,
-                                ixterm=entry[-1], ixtgt=rn, ixtext=txt)
+                                ixterm=entry[-1], ixtgt=rn, ixtext=txt, ixindent=indent_no)
                         else:
                             # no target, output last term as text
-                            subout(o, tstyle.text_last, hereattrs, ixterm=entry[-1])
+                            subout(o, tstyle.text_last, hereattrs, ixterm=entry[-1], ixindent=indent_no)
                         if lt > 1 or mte:
                             # multiple targets, iterate through the multi targets
                             for t in tgt.items():
                                 txt = t[1].get('text', entry[-1])
                                 subout(o, tstyle.multi_target, t[1], hereattrs,
-                                    ixterm = entry[-1], ixtgt=t[0], ixtext=txt)
+                                    ixterm = entry[-1], ixtgt=t[0], ixtext=txt, ixindent=indent_no)
                         subout(o, estyles[entry_no][1], hereattrs)
                         entry_no = (entry_no + 1) % elen
                         if count == count_max:
